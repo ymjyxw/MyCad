@@ -47,6 +47,8 @@ CMainFrame::~CMainFrame()
 
 int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 {
+
+
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
 
@@ -135,6 +137,30 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 	lstBasicCommands.AddTail(ID_VIEW_TOOLBAR);
 
 	CMFCToolBar::SetBasicCommands(lstBasicCommands);
+
+
+
+	//创建操作历史选项卡
+	if (!m_editHistryView.Create(_T("操作记录"), this, CRect(0, 0, 200, 200), TRUE, 2000, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_BOTTOM | CBRS_FLOAT_MULTI))
+	{
+		return FALSE;
+	}
+	m_editHistryView.EnableDocking(CBRS_ALIGN_ANY);
+	//DockPane(&m_editHistryView);
+	m_editHistryView.DockToFrameWindow(CBRS_ALIGN_LEFT);	//靠左停靠
+	m_editHistryView.SetMinSize(CSize(200, 200));		//甚至最小大小
+
+
+	//创建工具选项卡
+	if (!m_toolBoxView.Create(_T("工具选项卡"), this, CRect(0, 0, 200, 200), TRUE, 1000, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_BOTTOM | CBRS_FLOAT_MULTI))
+	{
+		return FALSE;
+	}
+	m_toolBoxView.EnableDocking(CBRS_ALIGN_ANY);
+	//DockPane(&m_toolBoxView);
+	m_toolBoxView.DockToFrameWindow(CBRS_ALIGN_TOP);	//靠上停靠
+	m_toolBoxView.SetMinSize(CSize(200, 200));		//甚至最小大小
+
 
 	return 0;
 }

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#include "MyToolBoxView.h"
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -36,6 +36,8 @@ protected:  // 控件条嵌入成员
 	CMFCStatusBar     m_wndStatusBar;
 	CMFCToolBarImages m_UserImages;
 
+	MyToolBoxView m_toolBoxView;
+	MyToolBoxView m_editHistryView;
 // 生成的消息映射函数
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
