@@ -187,11 +187,13 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DrawLine.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="MainFrm.h" />
     <ClInclude Include="MyCad.h" />
     <ClInclude Include="MyCadDoc.h" />
     <ClInclude Include="MyCadView.h" />
+    <ClInclude Include="MyEdit.h" />
     <ClInclude Include="MyToolBoxView.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
@@ -199,10 +201,12 @@
     <ClInclude Include="ToolDialog.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DrawLine.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MyCad.cpp" />
     <ClCompile Include="MyCadDoc.cpp" />
     <ClCompile Include="MyCadView.cpp" />
+    <ClCompile Include="MyEdit.cpp" />
     <ClCompile Include="MyToolBoxView.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>

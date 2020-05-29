@@ -12,7 +12,7 @@
 
 #include "MyCadDoc.h"
 #include "MyCadView.h"
-
+#include "DrawLine.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -29,6 +29,8 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMyCadView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
 	ON_WM_RBUTTONUP()
+	ON_WM_LBUTTONDOWN()
+	ON_WM_LBUTTONUP()
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -53,7 +55,7 @@ BOOL CMyCadView::PreCreateWindow(CREATESTRUCT& cs)
 
 // CMyCadView 绘图
 
-void CMyCadView::OnDraw(CDC* /*pDC*/)
+void CMyCadView::OnDraw(CDC* pDC)
 {
 	CMyCadDoc* pDoc = GetDocument();
 	ASSERT_VALID(pDoc);
@@ -61,6 +63,7 @@ void CMyCadView::OnDraw(CDC* /*pDC*/)
 		return;
 
 	// TODO: 在此处为本机数据添加绘制代码
+	DrawPoints(pDC);
 }
 
 
@@ -103,6 +106,28 @@ void CMyCadView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 #endif
 }
 
+void CMyCadView::SetEditStepPoint(int step, int x, int y, COLORREF color)
+{
+	
+
+}
+
+void CMyCadView::DrawPoints(CDC *pDC)
+{
+	int i = 0;
+	while (i < currentStep)
+	{
+		Points  *p = &(editStep[i].point);
+		while (p)
+		{
+			pDC->SetPixel(p->x, p->y, p->color);
+			p = p->next;
+		}
+
+		i++;
+	}
+}
+
 
 // CMyCadView 诊断
 
@@ -126,3 +151,56 @@ CMyCadDoc* CMyCadView::GetDocument() const // 非调试版本是内联的
 
 
 // CMyCadView 消息处理程序
+
+
+void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (currentModel == DRAWLINE)	//当前是画线操作
+	{
+		beginPoint = point;
+	}
+
+
+	CView::OnLButtonDown(nFlags, point);
+
+}
+
+
+void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	if (currentModel == DRAWLINE)	//当前是画线操作
+	{
+		endPoint = point;
+		DrawLine MyDrawLine;
+		MyDrawLine.DDALine(beginPoint.x, beginPoint.y, endPoint.x, endPoint.y,currentColor);	//获取点
+		
+		
+		DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//???获取MyDrawLine的像素点
+
+		editStep[currentStep].step = currentStep;	//写入操作步骤
+		Points* q = &(editStep[currentStep].point);	//获取表头结点
+	
+
+		while (p)	//写入像素点数据
+		{
+			q->x = p->x;
+			q->y = p->y;
+			q->color = p->color;
+			Points* nq = new Points;
+			nq->next = NULL;
+			q->next = nq;
+			q = q->next;
+			p = p->next;
+		}
+
+		Invalidate();
+			
+		beginPoint = CPoint(0, 0);	//重置点
+		endPoint = CPoint(0, 0);
+		
+		currentStep++;	//绘制步骤+1
+	}
+	CView::OnLButtonUp(nFlags, point);
+}

@@ -3,7 +3,7 @@
 //
 
 #pragma once
-
+#define MAXEDITNUM 1000;
 
 class CMyCadView : public CView
 {
@@ -45,8 +45,43 @@ protected:
 	DECLARE_MESSAGE_MAP()
 
 
+public:
+	struct Points	//保存像素点链表
+	{
+		int x, y;	//像素点位置
+		COLORREF color;	//像素点颜色
+		Points * next;
+	};
+
+	typedef struct EditStep		//操作步骤
+	{
+		int step;		//第step步
+		CPoint centerPoint;	//图形中心点
+		Points  point;	//当前操作步骤链表头节点
+	}*pEditStep;
+
+	enum EditModel	//操作样式
+	{
+		DRAWLINE,
+		DRAWCIRCLE,
+		DRAWRECT,
+		MOVEOBJECT,
+		ROTATEOBJECT,
+		SCALEOBJECT,
+
+	};
 
 
+	int currentStep = 0;	//当前操作步骤
+	EditModel currentModel = DRAWLINE;	//默认为画线操作
+	EditStep editStep[1000];//操作记录，保存1000条操作记录
+	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
+	COLORREF currentColor = RGB(0,0,0);	//当前选择颜色，默认黑色
+	void SetEditStepPoint(int step, int x, int y, COLORREF color);	//设置像素点到editStep中
+	void DrawPoints(CDC *pDC);	//绘制点
+
+	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
+	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本
