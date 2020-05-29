@@ -20,7 +20,7 @@
   </ItemGroup>
   <PropertyGroup Label="Globals">
     <VCProjectVersion>15.0</VCProjectVersion>
-    <ProjectGuid>{01C2C84C-0B59-467F-930C-CECB87B9CDA5}</ProjectGuid>
+    <ProjectGuid>{58B14945-BD05-46B9-B2FF-039D1875ACFE}</ProjectGuid>
     <Keyword>MFCProj</Keyword>
     <RootNamespace>MyCad</RootNamespace>
     <WindowsTargetPlatformVersion>10.0.17763.0</WindowsTargetPlatformVersion>
@@ -192,6 +192,7 @@
     <ClInclude Include="MyCad.h" />
     <ClInclude Include="MyCadDoc.h" />
     <ClInclude Include="MyCadView.h" />
+    <ClInclude Include="MyToolBoxView.h" />
     <ClInclude Include="pch.h" />
     <ClInclude Include="Resource.h" />
     <ClInclude Include="targetver.h" />
@@ -201,6 +202,7 @@
     <ClCompile Include="MyCad.cpp" />
     <ClCompile Include="MyCadDoc.cpp" />
     <ClCompile Include="MyCadView.cpp" />
+    <ClCompile Include="MyToolBoxView.cpp" />
     <ClCompile Include="pch.cpp">
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|Win32'">Create</PrecompiledHeader>
       <PrecompiledHeader Condition="'$(Configuration)|$(Platform)'=='Debug|x64'">Create</PrecompiledHeader>
@@ -212,12 +214,14 @@
     <ResourceCompile Include="MyCad.rc" />
   </ItemGroup>
   <ItemGroup>
-    <None Include="res\MyCad.rc2" />
-  </ItemGroup>
-  <ItemGroup>
     <Image Include="res\MyCad.ico" />
     <Image Include="res\MyCadDoc.ico" />
     <Image Include="res\Toolbar.bmp" />
+    <Image Include="res\Toolbar256.bmp" />
+    <Image Include="res\userimages.bmp" />
+  </ItemGroup>
+  <ItemGroup>
+    <None Include="res\MyCad.rc2" />
   </ItemGroup>
   <Import Project="$(VCTargetsPath)\Microsoft.Cpp.targets" />
   <ImportGroup Label="ExtensionTargets">

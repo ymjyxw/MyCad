@@ -19,13 +19,13 @@
 
 // CMyCadApp
 
-BEGIN_MESSAGE_MAP(CMyCadApp, CWinApp)
+BEGIN_MESSAGE_MAP(CMyCadApp, CWinAppEx)
 	ON_COMMAND(ID_APP_ABOUT, &CMyCadApp::OnAppAbout)
 	// 基于文件的标准文档命令
-	ON_COMMAND(ID_FILE_NEW, &CWinApp::OnFileNew)
-	ON_COMMAND(ID_FILE_OPEN, &CWinApp::OnFileOpen)
+	ON_COMMAND(ID_FILE_NEW, &CWinAppEx::OnFileNew)
+	ON_COMMAND(ID_FILE_OPEN, &CWinAppEx::OnFileOpen)
 	// 标准打印设置命令
-	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinApp::OnFilePrintSetup)
+	ON_COMMAND(ID_FILE_PRINT_SETUP, &CWinAppEx::OnFilePrintSetup)
 END_MESSAGE_MAP()
 
 
@@ -33,6 +33,8 @@ END_MESSAGE_MAP()
 
 CMyCadApp::CMyCadApp() noexcept
 {
+	m_bHiColorIcons = TRUE;
+
 	// 支持重新启动管理器
 	m_dwRestartManagerSupportFlags = AFX_RESTART_MANAGER_SUPPORT_ALL_ASPECTS;
 #ifdef _MANAGED
@@ -69,7 +71,7 @@ BOOL CMyCadApp::InitInstance()
 	InitCtrls.dwICC = ICC_WIN95_CLASSES;
 	InitCommonControlsEx(&InitCtrls);
 
-	CWinApp::InitInstance();
+	CWinAppEx::InitInstance();
 
 
 	// 初始化 OLE 库
@@ -96,6 +98,16 @@ BOOL CMyCadApp::InitInstance()
 	SetRegistryKey(_T("应用程序向导生成的本地应用程序"));
 	LoadStdProfileSettings(4);  // 加载标准 INI 文件选项(包括 MRU)
 
+
+	InitContextMenuManager();
+
+	InitKeyboardManager();
+
+	InitTooltipManager();
+	CMFCToolTipInfo ttParams;
+	ttParams.m_bVislManagerTheme = TRUE;
+	theApp.GetTooltipManager()->SetTooltipParams(AFX_TOOLTIP_TYPE_ALL,
+		RUNTIME_CLASS(CMFCToolTipCtrl), &ttParams);
 
 	// 注册应用程序的文档模板。  文档模板
 	// 将用作文档、框架窗口和视图之间的连接
@@ -132,7 +144,7 @@ int CMyCadApp::ExitInstance()
 	//TODO: 处理可能已添加的附加资源
 	AfxOleTerm(FALSE);
 
-	return CWinApp::ExitInstance();
+	return CWinAppEx::ExitInstance();
 }
 
 // CMyCadApp 消息处理程序
@@ -175,6 +187,25 @@ void CMyCadApp::OnAppAbout()
 {
 	CAboutDlg aboutDlg;
 	aboutDlg.DoModal();
+}
+
+// CMyCadApp 自定义加载/保存方法
+
+void CMyCadApp::PreLoadState()
+{
+	BOOL bNameValid;
+	CString strName;
+	bNameValid = strName.LoadString(IDS_EDIT_MENU);
+	ASSERT(bNameValid);
+	GetContextMenuManager()->AddMenu(strName, IDR_POPUP_EDIT);
+}
+
+void CMyCadApp::LoadCustomState()
+{
+}
+
+void CMyCadApp::SaveCustomState()
+{
 }
 
 // CMyCadApp 消息处理程序

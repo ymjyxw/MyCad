@@ -14,7 +14,7 @@
 // 有关此类的实现，请参阅 MyCad.cpp
 //
 
-class CMyCadApp : public CWinApp
+class CMyCadApp : public CWinAppEx
 {
 public:
 	CMyCadApp() noexcept;
@@ -26,6 +26,12 @@ public:
 	virtual int ExitInstance();
 
 // 实现
+	BOOL  m_bHiColorIcons;
+
+	virtual void PreLoadState();
+	virtual void LoadCustomState();
+	virtual void SaveCustomState();
+
 	afx_msg void OnAppAbout();
 	DECLARE_MESSAGE_MAP()
 };

@@ -4,7 +4,7 @@
 
 #pragma once
 
-class CMainFrame : public CFrameWnd
+class CMainFrame : public CFrameWndEx
 {
 	
 protected: // 仅从序列化创建
@@ -20,6 +20,7 @@ public:
 // 重写
 public:
 	virtual BOOL PreCreateWindow(CREATESTRUCT& cs);
+	virtual BOOL LoadFrame(UINT nIDResource, DWORD dwDefaultStyle = WS_OVERLAPPEDWINDOW | FWS_ADDTOTITLE, CWnd* pParentWnd = nullptr, CCreateContext* pContext = nullptr);
 
 // 实现
 public:
@@ -30,12 +31,16 @@ public:
 #endif
 
 protected:  // 控件条嵌入成员
-	CToolBar          m_wndToolBar;
-	CStatusBar        m_wndStatusBar;
+	CMFCMenuBar       m_wndMenuBar;
+	CMFCToolBar       m_wndToolBar;
+	CMFCStatusBar     m_wndStatusBar;
+	CMFCToolBarImages m_UserImages;
 
 // 生成的消息映射函数
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);
+	afx_msg void OnViewCustomize();
+	afx_msg LRESULT OnToolbarCreateNew(WPARAM wp, LPARAM lp);
 	DECLARE_MESSAGE_MAP()
 
 };
