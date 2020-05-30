@@ -177,13 +177,17 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
 	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWLINE)	//判断操作是否是画线
 	{
-		
+		COLORREF color = pMainFrame->m_toolBoxView.m_toolDialog.currentColor;	//获取颜色
 		endPoint = point;
+		while (endPoint == beginPoint)	//起点终点想同，退出
+		{
+			return;
+		}
 		DrawLine MyDrawLine;
-		MyDrawLine.DDALine(beginPoint.x, beginPoint.y, endPoint.x, endPoint.y,currentColor);	//获取点
+		MyDrawLine.DDALine(beginPoint.x, beginPoint.y, endPoint.x, endPoint.y, color);	//获取点
 		
 		
-		DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//???获取MyDrawLine的像素点
+		DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//获取MyDrawLine的像素点
 
 		editStep[currentStep].step = currentStep;	//写入操作步骤
 		Points* q = &(editStep[currentStep].point);	//获取表头结点

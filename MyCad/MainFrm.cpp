@@ -157,7 +157,7 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 		return FALSE;
 	}
 	m_toolBoxView.EnableDocking(CBRS_ALIGN_ANY);
-	//DockPane(&m_toolBoxView);
+	//DockPane(&m_toolBoxView);	//浮动
 	m_toolBoxView.DockToFrameWindow(CBRS_ALIGN_TOP);	//靠上停靠
 	m_toolBoxView.SetMinSize(CSize(200, 200));		//甚至最小大小
 

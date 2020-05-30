@@ -67,7 +67,7 @@ public:
 
 	EditStep editStep[1000];//操作记录，保存1000条操作记录
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
-	COLORREF currentColor = RGB(0,0,0);	//当前选择颜色，默认黑色
+	
 	void SetEditStepPoint(int step, int x, int y, COLORREF color);	//设置像素点到editStep中
 	void DrawPoints(CDC *pDC);	//绘制点
 
