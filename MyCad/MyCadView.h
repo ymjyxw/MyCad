@@ -60,20 +60,11 @@ public:
 		Points  point;	//当前操作步骤链表头节点
 	}*pEditStep;
 
-	enum EditModel	//操作样式
-	{
-		DRAWLINE,
-		DRAWCIRCLE,
-		DRAWRECT,
-		MOVEOBJECT,
-		ROTATEOBJECT,
-		SCALEOBJECT,
 
-	};
 
 
 	int currentStep = 0;	//当前操作步骤
-	EditModel currentModel = DRAWLINE;	//默认为画线操作
+
 	EditStep editStep[1000];//操作记录，保存1000条操作记录
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	COLORREF currentColor = RGB(0,0,0);	//当前选择颜色，默认黑色

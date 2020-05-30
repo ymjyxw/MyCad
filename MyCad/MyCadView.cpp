@@ -13,6 +13,8 @@
 #include "MyCadDoc.h"
 #include "MyCadView.h"
 #include "DrawLine.h"
+#include "MainFrm.h"
+#include "ToolDialog.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -156,11 +158,13 @@ CMyCadDoc* CMyCadView::GetDocument() const // 非调试版本是内联的
 void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	if (currentModel == DRAWLINE)	//当前是画线操作
+	
+
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWLINE)	//判断操作是否是画线
 	{
 		beginPoint = point;
 	}
-
 
 	CView::OnLButtonDown(nFlags, point);
 
@@ -170,8 +174,10 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
-	if (currentModel == DRAWLINE)	//当前是画线操作
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWLINE)	//判断操作是否是画线
 	{
+		
 		endPoint = point;
 		DrawLine MyDrawLine;
 		MyDrawLine.DDALine(beginPoint.x, beginPoint.y, endPoint.x, endPoint.y,currentColor);	//获取点

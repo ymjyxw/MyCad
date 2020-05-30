@@ -20,4 +20,24 @@ protected:
 	virtual void DoDataExchange(CDataExchange* pDX);    // DDX/DDV 支持
 
 	DECLARE_MESSAGE_MAP()
+
+public:
+	enum EditModel	//操作样式
+	{
+		DRAWLINE,
+		DRAWCIRCLE,
+		DRAWRECT,
+		MOVEOBJECT,
+		ROTATEOBJECT,
+		SCALEOBJECT,
+
+	};
+	EditModel currentModel = DRAWLINE;	//默认为画线操作
+
+public:
+	
+
+
+
+	afx_msg void OnDrawLine();
 };
