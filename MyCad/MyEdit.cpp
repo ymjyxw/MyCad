@@ -12,22 +12,3 @@ MyEdit::pStepPoint MyEdit::getPoints()
 	return pStepPoint();
 }
 
-void MyEdit::RotateObject()
-{
-}
-
-void MyEdit::ScaleObject()
-{
-}
-
-void MyEdit::MoveObject()
-{
-}
-
-void MyEdit::SetCenterPoint()
-{
-}
-
-void MyEdit::GetCenterPoint()
-{
-}

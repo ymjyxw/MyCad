@@ -16,7 +16,7 @@ void DrawLine::DDALine(int x0, int y0, int x1, int y1, COLORREF color)	//画线
 	x = x0;
 	y = y0;
 	StepPoint* p = stepPoint;
-	//MyEdit::m_points = new StepPoint;
+
 	for (int i = 0; i < e; i++) //循环画线
 	{
 		setPoint(p, x, y, color);   //四舍五入后画设置点

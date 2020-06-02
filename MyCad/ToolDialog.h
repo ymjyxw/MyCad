@@ -40,4 +40,5 @@ public:
 
 
 	afx_msg void OnDrawLine();
+	afx_msg void OnMoveObject();
 };

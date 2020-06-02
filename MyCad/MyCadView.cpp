@@ -15,6 +15,8 @@
 #include "DrawLine.h"
 #include "MainFrm.h"
 #include "ToolDialog.h"
+#include "MyTransform.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -30,9 +32,10 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 	ON_COMMAND(ID_FILE_PRINT_DIRECT, &CView::OnFilePrint)
 	ON_COMMAND(ID_FILE_PRINT_PREVIEW, &CMyCadView::OnFilePrintPreview)
 	ON_WM_CONTEXTMENU()
-	ON_WM_RBUTTONUP()
+//	ON_WM_RBUTTONUP()
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
+	ON_WM_MOUSEMOVE()
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -95,11 +98,6 @@ void CMyCadView::OnEndPrinting(CDC* /*pDC*/, CPrintInfo* /*pInfo*/)
 	// TODO: 添加打印后进行的清理过程
 }
 
-void CMyCadView::OnRButtonUp(UINT /* nFlags */, CPoint point)
-{
-	ClientToScreen(&point);
-	OnContextMenu(this, point);
-}
 
 void CMyCadView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 {
@@ -165,6 +163,10 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		beginPoint = point;
 	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
+	{
+		beginTransform = true;
+	}
 
 	CView::OnLButtonDown(nFlags, point);
 
@@ -183,51 +185,104 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		{
 			return;
 		}
-		DrawLine MyDrawLine;
-		MyDrawLine.DDALine(beginPoint.x, beginPoint.y, endPoint.x, endPoint.y, color);	//获取点
 		
-		
-		DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//获取MyDrawLine的像素点
-
-
-
-
-		stepPoints[currentStep].step = currentStep;	//写入操作步骤
-		Points* q = &(stepPoints[currentStep].point);	//获取表头结点
-	
-
-		while (p)	//写入像素点数据
-		{
-			q->x = p->x;
-			q->y = p->y;
-			q->color = p->color;
-			Points* nq = new Points;
-			nq->next = NULL;
-			q->next = nq;
-			q = q->next;
-			p = p->next;
-		}
+		this->SetLine(beginPoint, endPoint, color);
 
 		Invalidate();
-			
-	
-		//保存操作记录
-		editSteps[currentStep].type = LINE; //绘制的是线条
-		editSteps[currentStep].centerPoint = CPoint((beginPoint.x + endPoint.x) / 2, (beginPoint.y + endPoint.y) / 2);//中心点
-		editSteps[currentStep].point.x = beginPoint.x;	//写入关键点数据
-		editSteps[currentStep].point.y = beginPoint.y;
-		editSteps[currentStep].point.color = color;
-		Points *newPoint = new Points;
-		editSteps[currentStep].point.next = newPoint;
-		newPoint->x = endPoint.x;	//写入关键点数据
-		newPoint->y = endPoint.y;
-		newPoint->color = color;
-		newPoint->next = NULL;
 
 		beginPoint = CPoint(0, 0);	//重置点
 		endPoint = CPoint(0, 0);
 		
 		currentStep++;	//绘制步骤+1
 	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
+	{
+		beginTransform = false;
+	}
+
 	CView::OnLButtonUp(nFlags, point);
+}
+
+
+void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT && beginTransform)	//移动事件
+	{
+		
+		//ToModify:	当前只修改这一步骤下的图形
+		if (currentStep == 0)	//还没绘制图形，直接退出
+			return;
+		currentStep--;
+		if (editSteps[currentStep].type == LINE)	//移动的对象是线条
+		{
+			COLORREF color = editSteps[currentStep].point.color;	//获取颜色
+			CPoint p1 = CPoint(editSteps[currentStep].point.x, editSteps[currentStep].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[currentStep].point.next->x, editSteps[currentStep].point.next->y);
+
+
+			//p1 += (point - editSteps[currentStep].centerPoint);//获取移动后的点
+			//p2 += (point - editSteps[currentStep].centerPoint);
+
+			int dx = point.x - editSteps[currentStep].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[currentStep].centerPoint.y;
+
+			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
+			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
+				
+			this->SetLine(p1, p2, color);	//重新绘制
+
+		}
+
+
+		Invalidate();
+		currentStep++;
+
+	}
+	CView::OnMouseMove(nFlags, point);
+}
+
+
+void CMyCadView::SetLine(CPoint p1,CPoint p2, COLORREF color)
+{
+	DrawLine MyDrawLine;
+	MyDrawLine.DDALine(p1.x, p1.y, p2.x, p2.y, color);	//获取点
+
+	DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//获取MyDrawLine的像素点
+	stepPoints[currentStep].step = currentStep;	//写入操作步骤
+	Points* q = &(stepPoints[currentStep].point);	//获取表头结点
+
+
+
+	while (p)	//写入像素点数据
+	{
+
+		q->x = p->x;
+		q->y = p->y;
+		q->color = p->color;
+		Points* nq = new Points;
+		nq->next = NULL;
+		q->next = nq;
+		q = q->next;
+		p = p->next;
+
+
+	}
+
+
+	//保存操作记录
+	editSteps[currentStep].type = LINE; //绘制的是线条
+	editSteps[currentStep].centerPoint = CPoint((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);//中心点
+	editSteps[currentStep].point.x = p1.x;	//写入关键点数据
+	editSteps[currentStep].point.y = p1.y;
+	editSteps[currentStep].point.color = color;
+	Points *newPoint = new Points;
+	editSteps[currentStep].point.next = newPoint;
+	newPoint->x = p2.x;	//写入关键点数据
+	newPoint->y = p2.y;
+	newPoint->color = color;
+	newPoint->next = NULL;
+
+
 }

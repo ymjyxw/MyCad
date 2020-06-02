@@ -30,6 +30,7 @@ void ToolDialog::DoDataExchange(CDataExchange* pDX)
 BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	
 	ON_BN_CLICKED(IDC_BUTTON1, &ToolDialog::OnDrawLine)
+	ON_BN_CLICKED(IDC_BUTTON2, &ToolDialog::OnMoveObject)
 END_MESSAGE_MAP()
 
 
@@ -42,4 +43,11 @@ void ToolDialog::OnDrawLine()	//点击画线按钮，实现画线功能
 	// TODO: 在此添加控件通知处理程序代码
 	currentModel = DRAWLINE;
 	
+}
+
+
+void ToolDialog::OnMoveObject()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = MOVEOBJECT;
 }

@@ -40,7 +40,7 @@ protected:
 // 生成的消息映射函数
 protected:
 	afx_msg void OnFilePrintPreview();
-	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+//	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 
@@ -78,12 +78,16 @@ public:
 	StepPoints stepPoints[1000];//存储每一步绘制的像素点，保存1000条操作记录
 	EditStep editSteps[1000];//记录每一步的绘制类型，及其关键点
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
-	
+	bool beginTransform = false;	//记录当前是否进行移动
+
 	void SetEditStepPoint(int step, int x, int y, COLORREF color);	//设置像素点到editStep中
 	void DrawPoints(CDC *pDC);	//绘制点
+	void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color);	//设置线条
+
 
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
+	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本

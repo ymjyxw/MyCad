@@ -11,7 +11,6 @@ public :
 		StepPoint * next;
 	}*pStepPoint,StepPoint;
 
-	CPoint centerPoint;
 
 private:
 	
@@ -24,10 +23,7 @@ protected:
 public:
 	
 	pStepPoint getPoints();	//获取绘制的点链表
-	void RotateObject();		//位移
-	void ScaleObject();			//旋转
-	void MoveObject();			//缩放
-	void SetCenterPoint();	//设置图形中心点
-	void GetCenterPoint();	//获取图形中心点
+	
+
 };
 
