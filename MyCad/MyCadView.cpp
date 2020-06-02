@@ -119,7 +119,7 @@ void CMyCadView::DrawPoints(CDC *pDC)
 	int i = 0;
 	while (i < currentStep)
 	{
-		Points  *p = &(editStep[i].point);
+		Points  *p = &(stepPoints[i].point);
 		while (p)
 		{
 			pDC->SetPixel(p->x, p->y, p->color);
@@ -189,8 +189,11 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		
 		DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//获取MyDrawLine的像素点
 
-		editStep[currentStep].step = currentStep;	//写入操作步骤
-		Points* q = &(editStep[currentStep].point);	//获取表头结点
+
+
+
+		stepPoints[currentStep].step = currentStep;	//写入操作步骤
+		Points* q = &(stepPoints[currentStep].point);	//获取表头结点
 	
 
 		while (p)	//写入像素点数据
@@ -207,6 +210,20 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 
 		Invalidate();
 			
+	
+		//保存操作记录
+		editSteps[currentStep].type = LINE; //绘制的是线条
+		editSteps[currentStep].centerPoint = CPoint((beginPoint.x + endPoint.x) / 2, (beginPoint.y + endPoint.y) / 2);//中心点
+		editSteps[currentStep].point.x = beginPoint.x;	//写入关键点数据
+		editSteps[currentStep].point.y = beginPoint.y;
+		editSteps[currentStep].point.color = color;
+		Points *newPoint = new Points;
+		editSteps[currentStep].point.next = newPoint;
+		newPoint->x = endPoint.x;	//写入关键点数据
+		newPoint->y = endPoint.y;
+		newPoint->color = color;
+		newPoint->next = NULL;
+
 		beginPoint = CPoint(0, 0);	//重置点
 		endPoint = CPoint(0, 0);
 		

@@ -53,19 +53,30 @@ public:
 		Points * next;
 	};
 
-	typedef struct EditStep		//操作步骤
+	typedef struct StepPoints		//每一步绘制的点数据
 	{
 		int step;		//第step步
-		CPoint centerPoint;	//图形中心点
 		Points  point;	//当前操作步骤链表头节点
-	}*pEditStep;
+	}*pStepPoints;
+
+	enum Type {
+		LINE,
+		RECT,
+		CIRCLE
+	};
 
 
-
+	typedef struct EditStep
+	{
+		Type type;	//绘制类型
+		CPoint centerPoint;	//图形中心点
+		Points point;	//关键点链表
+	}pEditStep;
 
 	int currentStep = 0;	//当前操作步骤
 
-	EditStep editStep[1000];//操作记录，保存1000条操作记录
+	StepPoints stepPoints[1000];//存储每一步绘制的像素点，保存1000条操作记录
+	EditStep editSteps[1000];//记录每一步的绘制类型，及其关键点
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	
 	void SetEditStepPoint(int step, int x, int y, COLORREF color);	//设置像素点到editStep中
