@@ -106,11 +106,6 @@ void CMyCadView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 #endif
 }
 
-void CMyCadView::SetEditStepPoint(int step, int x, int y, COLORREF color)
-{
-	
-
-}
 
 void CMyCadView::DrawPoints(CDC *pDC)
 {
@@ -153,6 +148,19 @@ CMyCadDoc* CMyCadView::GetDocument() const // 非调试版本是内联的
 // CMyCadView 消息处理程序
 
 
+void CMyCadView::SetTreeDialog(int num, CString str)
+{
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+
+	CString str_num;
+	str_num.Format(_T("%d"), num);
+	str = str_num + _T("——") + str;
+
+	pMainFrame->m_treeBoxView.m_treeDialog.SetTreeItem(str);
+
+
+}
+
 void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -186,7 +194,7 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 			return;
 		}
 		
-		this->SetLine(beginPoint, endPoint, color);
+		this->SetLine(beginPoint, endPoint, color,currentStep);
 
 		Invalidate();
 
@@ -194,6 +202,9 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		endPoint = CPoint(0, 0);
 		
 		currentStep++;	//绘制步骤+1
+		
+		this->SetTreeDialog(currentStep,_T("绘制直线"));
+
 	}
 	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
 	{
@@ -211,47 +222,55 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT && beginTransform)	//移动事件
 	{
 		
-		//ToModify:	当前只修改这一步骤下的图形
-		if (currentStep == 0)	//还没绘制图形，直接退出
-			return;
-		currentStep--;
-		if (editSteps[currentStep].type == LINE)	//移动的对象是线条
+		//当前只修改这一步骤下的图形
+		int select = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
+		if (select < 0)	//没有选中图形，直接退出
 		{
-			COLORREF color = editSteps[currentStep].point.color;	//获取颜色
-			CPoint p1 = CPoint(editSteps[currentStep].point.x, editSteps[currentStep].point.y);	//获取关键点
-			CPoint p2 = CPoint(editSteps[currentStep].point.next->x, editSteps[currentStep].point.next->y);
+
+			MessageBox(_T("没有选择图形"));
+			return;
+		}
+					
+
+	
+		
+		if (editSteps[select].type == LINE)	//移动的对象是线条
+		{
+			COLORREF color = editSteps[select].point.color;	//获取颜色
+			CPoint p1 = CPoint(editSteps[select].point.x, editSteps[select].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[select].point.next->x, editSteps[select].point.next->y);
 
 
 			//p1 += (point - editSteps[currentStep].centerPoint);//获取移动后的点
 			//p2 += (point - editSteps[currentStep].centerPoint);
 
-			int dx = point.x - editSteps[currentStep].centerPoint.x;	//获取位移量
-			int dy = point.y - editSteps[currentStep].centerPoint.y;
+			int dx = point.x - editSteps[select].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[select].centerPoint.y;
 
 			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
 			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
 				
-			this->SetLine(p1, p2, color);	//重新绘制
+			this->SetLine(p1, p2, color,select);	//重新绘制
 
 		}
 
 
 		Invalidate();
-		currentStep++;
+		
 
 	}
 	CView::OnMouseMove(nFlags, point);
 }
 
 
-void CMyCadView::SetLine(CPoint p1,CPoint p2, COLORREF color)
+void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 {
 	DrawLine MyDrawLine;
 	MyDrawLine.DDALine(p1.x, p1.y, p2.x, p2.y, color);	//获取点
 
 	DrawLine::pStepPoint p = MyDrawLine.stepPoint;	//获取MyDrawLine的像素点
-	stepPoints[currentStep].step = currentStep;	//写入操作步骤
-	Points* q = &(stepPoints[currentStep].point);	//获取表头结点
+	stepPoints[s].step = s;	//写入操作步骤
+	Points* q = &(stepPoints[s].point);	//获取表头结点
 
 
 
@@ -272,17 +291,21 @@ void CMyCadView::SetLine(CPoint p1,CPoint p2, COLORREF color)
 
 
 	//保存操作记录
-	editSteps[currentStep].type = LINE; //绘制的是线条
-	editSteps[currentStep].centerPoint = CPoint((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);//中心点
-	editSteps[currentStep].point.x = p1.x;	//写入关键点数据
-	editSteps[currentStep].point.y = p1.y;
-	editSteps[currentStep].point.color = color;
+	editSteps[s].type = LINE; //绘制的是线条
+	editSteps[s].centerPoint = CPoint((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);//中心点
+	editSteps[s].point.x = p1.x;	//写入关键点数据
+	editSteps[s].point.y = p1.y;
+	editSteps[s].point.color = color;
 	Points *newPoint = new Points;
-	editSteps[currentStep].point.next = newPoint;
+	editSteps[s].point.next = newPoint;
 	newPoint->x = p2.x;	//写入关键点数据
 	newPoint->y = p2.y;
 	newPoint->color = color;
 	newPoint->next = NULL;
 
 
+}
+
+void CMyCadView::GetcurrentEditStep()
+{
 }

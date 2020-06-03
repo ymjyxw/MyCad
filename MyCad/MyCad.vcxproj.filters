@@ -54,6 +54,12 @@
     <ClInclude Include="MyTransform.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="TreeDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
+    <ClInclude Include="MyTreeBoxView.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyCad.cpp">
@@ -84,6 +90,12 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="MyTransform.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="TreeDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="MyTreeBoxView.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

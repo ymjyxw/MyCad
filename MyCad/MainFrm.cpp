@@ -141,14 +141,14 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 
 	//创建操作历史选项卡
-	if (!m_editHistryView.Create(_T("操作记录"), this, CRect(0, 0, 200, 200), TRUE, 2000, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_BOTTOM | CBRS_FLOAT_MULTI))
+	if (!m_treeBoxView.Create(_T("操作列表"), this, CRect(0, 0, 200, 200), TRUE, 2000, WS_CHILD | WS_VISIBLE | WS_CLIPSIBLINGS | WS_CLIPCHILDREN | CBRS_ALIGN_BOTTOM | CBRS_FLOAT_MULTI))
 	{
 		return FALSE;
 	}
-	m_editHistryView.EnableDocking(CBRS_ALIGN_ANY);
-	//DockPane(&m_editHistryView);
-	m_editHistryView.DockToFrameWindow(CBRS_ALIGN_LEFT);	//靠左停靠
-	m_editHistryView.SetMinSize(CSize(200, 200));		//甚至最小大小
+	m_treeBoxView.EnableDocking(CBRS_ALIGN_ANY);
+	
+	m_treeBoxView.DockToFrameWindow(CBRS_ALIGN_LEFT);	//靠左停靠
+	m_treeBoxView.SetMinSize(CSize(200, 200));		//甚至最小大小
 
 
 	//创建工具选项卡

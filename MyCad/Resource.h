@@ -17,16 +17,19 @@
 #define IDR_MAINFRAME_256               129
 #define IDR_MyCadTYPE                   130
 #define IDS_EDIT_MENU                   306
+#define IDD_TREEDIALOG                  312
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
+#define IDC_TREE1                       1004
+#define IDC_EDIT1                       1008
 
 // Next default values for new objects
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        312
+#define _APS_NEXT_RESOURCE_VALUE        314
 #define _APS_NEXT_COMMAND_VALUE         32771
-#define _APS_NEXT_CONTROL_VALUE         1002
+#define _APS_NEXT_CONTROL_VALUE         1010
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

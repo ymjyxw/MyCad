@@ -4,6 +4,7 @@
 
 #pragma once
 #include "MyToolBoxView.h"
+#include "MyTreeBoxView.h"
 class CMainFrame : public CFrameWndEx
 {
 	
@@ -37,7 +38,7 @@ protected:  // 控件条嵌入成员
 	CMFCToolBarImages m_UserImages;
 public:
 	MyToolBoxView m_toolBoxView;
-	MyToolBoxView m_editHistryView;
+	MyTreeBoxView m_treeBoxView;
 // 生成的消息映射函数
 protected:
 	afx_msg int OnCreate(LPCREATESTRUCT lpCreateStruct);

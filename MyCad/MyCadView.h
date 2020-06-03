@@ -73,18 +73,19 @@ public:
 		Points point;	//关键点链表
 	}pEditStep;
 
-	int currentStep = 0;	//当前操作步骤
+	int currentStep = 0;	//当前已经操作了的操作步骤
+	int currentEditStep = 0;		//当前正在修改的图形所在步骤
 
 	StepPoints stepPoints[1000];//存储每一步绘制的像素点，保存1000条操作记录
 	EditStep editSteps[1000];//记录每一步的绘制类型，及其关键点
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	bool beginTransform = false;	//记录当前是否进行移动
 
-	void SetEditStepPoint(int step, int x, int y, COLORREF color);	//设置像素点到editStep中
+
 	void DrawPoints(CDC *pDC);	//绘制点
-	void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color);	//设置线条
-
-
+	void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
+	void GetcurrentEditStep();	//当前正在修改的图形所在步骤
+	void SetTreeDialog(int num, CString str);	//设置树状图
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
