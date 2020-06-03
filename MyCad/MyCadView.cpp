@@ -36,6 +36,7 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 	ON_WM_LBUTTONDOWN()
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
+	ON_COMMAND(ID_32775, &CMyCadView::OnExportImage)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -308,4 +309,48 @@ void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 
 void CMyCadView::GetcurrentEditStep()
 {
+}
+
+
+void CMyCadView::OnExportImage()
+{
+	// TODO: 在此添加命令处理程序代码
+
+
+	CClientDC dc(this);
+	CRect rect;
+	GetClientRect(&rect);                  //获取画布大小
+	HBITMAP hbitmap = CreateCompatibleBitmap(dc, rect.right - rect.left, rect.bottom - rect.top);	//创建兼容位图
+	HDC hdc = CreateCompatibleDC(dc);      //创建兼容DC，以便将图像保存为不同的格式
+	HBITMAP hOldMap = (HBITMAP)SelectObject(hdc, hbitmap);	//将位图选入DC，并保存返回值 
+	BitBlt(hdc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, dc, 0, 0, SRCCOPY);	//将屏幕DC的图像复制到内存DC中
+
+
+	CImage image;
+	image.Attach(hbitmap);                //将位图转化为一般图像
+
+	CString  strFilter = _T("位图文件(*.bmp)|*.bmp|JPEG 图像文件|*.jpg|GIF图像文件 | *.gif | PNG图像文件 | *.png |其他格式(*.*) | *.* || ");
+	CFileDialog dlg(FALSE, _T("bmp"), _T("MyCadImage.bmp"), NULL, strFilter);
+
+	if (dlg.DoModal() != IDOK)	//模态窗口显示
+		return;
+
+	CString strFileName;          //文件路径
+
+
+	strFileName = dlg.m_ofn.lpstrFile;
+
+
+	HRESULT hResult = image.Save(strFileName);     //保存图像
+
+	if (FAILED(hResult))
+		MessageBox(_T("保存图像文件失败！"));
+	else
+		MessageBox(_T("文件保存成功！"));
+
+	image.Detach();
+	SelectObject(hdc, hOldMap);
+
+
+
 }

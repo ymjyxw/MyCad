@@ -89,6 +89,7 @@ public:
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
+	afx_msg void OnExportImage();
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本
