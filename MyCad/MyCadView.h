@@ -84,12 +84,14 @@ public:
 
 	void DrawPoints(CDC *pDC);	//绘制点
 	void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
-	void GetcurrentEditStep();	//当前正在修改的图形所在步骤
 	void SetTreeDialog(int num, CString str);	//设置树状图
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnExportImage();
+
+	virtual BOOL PreTranslateMessage(MSG* pMsg);
+	
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本

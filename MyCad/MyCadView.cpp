@@ -37,6 +37,8 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 	ON_WM_LBUTTONUP()
 	ON_WM_MOUSEMOVE()
 	ON_COMMAND(ID_32775, &CMyCadView::OnExportImage)
+//	ON_WM_KEYDOWN()
+
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -228,7 +230,7 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 		if (select < 0)	//没有选中图形，直接退出
 		{
 
-			MessageBox(_T("没有选择图形"));
+			//MessageBox(_T("没有选择图形"));
 			return;
 		}
 					
@@ -307,9 +309,6 @@ void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 
 }
 
-void CMyCadView::GetcurrentEditStep()
-{
-}
 
 
 void CMyCadView::OnExportImage()
@@ -354,3 +353,50 @@ void CMyCadView::OnExportImage()
 
 
 }
+
+
+
+BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
+{
+	
+	static bool m_ctrl_down = false;//此函数第一次调用的时候初始化
+
+	if (pMsg->message == WM_KEYDOWN)
+	{
+
+		switch (pMsg->wParam)
+		{
+		case 'Z'://Ctrl + Z
+			if (m_ctrl_down)	//Ctrl+Z按下
+			{
+				//AfxMessageBox(_T("Ctrl + Z key down")); 
+				if (currentStep > 0)
+				{
+					currentStep--;
+					CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+					pMainFrame->m_treeBoxView.m_treeDialog.DelTreeItem();
+					
+					Invalidate();
+				}
+
+				return TRUE;
+			}
+			break;
+		case VK_CONTROL:
+			m_ctrl_down = true; return TRUE;
+		default:
+			return TRUE;
+		}
+	}
+	if (pMsg->message == WM_KEYUP)
+	{
+		switch (pMsg->wParam)
+		{
+		case VK_CONTROL:
+			m_ctrl_down = false; return TRUE;
+		}
+	}
+
+	return CView::PreTranslateMessage(pMsg);
+}
+

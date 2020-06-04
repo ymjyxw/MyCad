@@ -31,10 +31,17 @@ void TreeDialog::SetTreeItem(CString str)
 {
 
 	hCataItem[ItemCount] = m_treeCtrl.InsertItem(str, 1, ItemCount+1, hRoot, TVI_LAST);
-	m_treeCtrl.SetItemData(hCataItem[0], ItemCount+1);
+	m_treeCtrl.SetItemData(hCataItem[ItemCount], ItemCount+1);
 
 	ItemCount++;
 	m_treeCtrl.Expand(hRoot, TVE_EXPAND);	//默认全部展开
+}
+
+void TreeDialog::DelTreeItem()
+{
+	m_treeCtrl.DeleteItem(hCataItem[ItemCount-1]);
+	ItemCount--;
+
 }
 
 int TreeDialog::ChangeStep()
@@ -46,7 +53,7 @@ int TreeDialog::ChangeStep()
 	HTREEITEM hItem = m_treeCtrl.GetSelectedItem();
 
 	int count = 0;
-	while (hItem_search)	//获取选中的Item编号
+	while (hItem_search&&count<ItemCount)	//获取选中的Item编号
 	{
 		if (m_treeCtrl.GetItemText(hItem_search) == m_treeCtrl.GetItemText(hItem))
 		{
