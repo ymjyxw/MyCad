@@ -101,6 +101,7 @@ public:
 
 
 
+	afx_msg void OnFileNew();
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本

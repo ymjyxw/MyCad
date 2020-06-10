@@ -44,6 +44,17 @@ void TreeDialog::DelTreeItem()
 
 }
 
+void TreeDialog::DelAllTreeItem()
+{
+	tree_currentStep = -1;
+	while (ItemCount > 0)
+	{
+		m_treeCtrl.DeleteItem(hCataItem[ItemCount - 1]);
+		ItemCount--;
+	}
+	
+}
+
 int TreeDialog::ChangeStep()
 {
 	if (ItemCount == 0)	//还没创建子项目直接退出

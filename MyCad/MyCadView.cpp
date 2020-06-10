@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 
 //ON_WM_TIMER()
 ON_COMMAND(ID_32776, &CMyCadView::OnExportFile)
+ON_COMMAND(ID_FILE_NEW, &CMyCadView::OnFileNew)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -409,6 +410,14 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 				return TRUE;
 			}
 			break;
+		case 'N'://Ctrl + N
+			if (m_ctrl_down)	//Ctrl+Z按下
+			{
+				
+				OnFileNew();
+				return TRUE;
+			}
+			break;
 		case VK_CONTROL:
 			m_ctrl_down = true; return TRUE;
 		default:
@@ -452,7 +461,7 @@ UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 
 
 
-void CMyCadView::OnExportFile()
+void CMyCadView::OnExportFile()	//导出文件
 {
 	// TODO: 在此添加命令处理程序代码
 
@@ -486,7 +495,7 @@ void CMyCadView::OnExportFile()
 		CString drawType;
 		CString centerPoint;
 		CString points = _T("");
-		for (int i = 0; i < 1000; i++)
+		for (int i = 0; i < currentStep; i++)
 		{
 			points = _T("");
 			switch (editSteps[i].type)
@@ -521,4 +530,16 @@ void CMyCadView::OnExportFile()
 		file.Abort();
 		e->Delete();
 	}
+}
+
+
+void CMyCadView::OnFileNew()	//重新新建场景
+{
+	// TODO: 在此添加命令处理程序代码
+	currentStep = 0;
+	currentEditStep = -1;
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	pMainFrame->m_treeBoxView.m_treeDialog.DelAllTreeItem(); //删除树状图
+
+	Invalidate();
 }

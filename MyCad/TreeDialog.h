@@ -23,7 +23,7 @@ public:
 	int tree_currentStep=-1; //代表没有选择任何一个图形
 	void SetTreeItem(CString str);
 	void DelTreeItem();//删除Item
-
+	void DelAllTreeItem();//删除所有Item
 private:
 	int ItemCount = 0; //当前绘制图形的数量
 	CTreeCtrl m_treeCtrl;
