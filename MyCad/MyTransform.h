@@ -1,6 +1,6 @@
 #pragma once
 #include "pch.h"
-static class  MyTransform
+class  MyTransform
 {
 	//专门用于处理位移旋转缩放的类
 

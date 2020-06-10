@@ -94,8 +94,9 @@ void TreeDialog::OnTvnSelchangedTree1(NMHDR *pNMHDR, LRESULT *pResult)
 	// 将字符串显示到编辑框中   
 	SetDlgItemText(IDC_EDIT1, strText);
 	tree_currentStep = ChangeStep();
-
-
+	/*CMainFrame* pFrame = (CMainFrame *)(AfxGetApp()->m_pMainWnd);
+	CMyCadView* pViw = (CMyCadView*)pFrame->GetActiveView();
+	pViw->currentEditStep = tree_currentStep;*/
 	
 }
 

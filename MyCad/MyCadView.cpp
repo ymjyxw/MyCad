@@ -8,6 +8,7 @@
 // ATL 项目中进行定义，并允许与该项目共享文档代码。
 #ifndef SHARED_HANDLERS
 #include "MyCad.h"
+
 #endif
 
 #include "MyCadDoc.h"
@@ -39,6 +40,8 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 	ON_COMMAND(ID_32775, &CMyCadView::OnExportImage)
 //	ON_WM_KEYDOWN()
 
+//ON_WM_TIMER()
+ON_COMMAND(ID_32776, &CMyCadView::OnExportFile)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -46,7 +49,10 @@ END_MESSAGE_MAP()
 CMyCadView::CMyCadView() noexcept
 {
 	// TODO: 在此处添加构造代码
-
+	AllocConsole();
+	pThread_highLight = AfxBeginThread(pThread_highLightFunc, this);//创建线程并启动
+	
+	
 }
 
 CMyCadView::~CMyCadView()
@@ -72,6 +78,9 @@ void CMyCadView::OnDraw(CDC* pDC)
 
 	// TODO: 在此处为本机数据添加绘制代码
 	DrawPoints(pDC);
+	
+
+
 }
 
 
@@ -164,6 +173,24 @@ void CMyCadView::SetTreeDialog(int num, CString str)
 
 }
 
+void CMyCadView::HighObject(int step)
+{
+	
+	CDC * pDC = GetDC();//初始化指针pDC
+	CPoint cp = editSteps[step].centerPoint;
+	CPoint ld = cp - CPoint(10, 10);
+	CPoint rt = cp + CPoint(10, 10);
+
+	CBrush NewBrush, *pOldBrush;
+	NewBrush.CreateSolidBrush(RGB(255, 0, 0));
+	pOldBrush = pDC->SelectObject(&NewBrush);
+	pDC->Ellipse(CRect(ld, rt));
+	pDC->SelectObject(pOldBrush);
+	NewBrush.DeleteObject();
+	ReleaseDC(pDC);//释放指针
+	
+}
+
 void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -226,8 +253,8 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 	{
 		
 		//当前只修改这一步骤下的图形
-		int select = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
-		if (select < 0)	//没有选中图形，直接退出
+		currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
+		if (currentEditStep < 0)	//没有选中图形，直接退出
 		{
 
 			//MessageBox(_T("没有选择图形"));
@@ -237,23 +264,23 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 
 	
 		
-		if (editSteps[select].type == LINE)	//移动的对象是线条
+		if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
 		{
-			COLORREF color = editSteps[select].point.color;	//获取颜色
-			CPoint p1 = CPoint(editSteps[select].point.x, editSteps[select].point.y);	//获取关键点
-			CPoint p2 = CPoint(editSteps[select].point.next->x, editSteps[select].point.next->y);
+			COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+			CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
 
 			//p1 += (point - editSteps[currentStep].centerPoint);//获取移动后的点
 			//p2 += (point - editSteps[currentStep].centerPoint);
 
-			int dx = point.x - editSteps[select].centerPoint.x;	//获取位移量
-			int dy = point.y - editSteps[select].centerPoint.y;
+			int dx = point.x - editSteps[currentEditStep].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[currentEditStep].centerPoint.y;
 
 			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
 			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
 				
-			this->SetLine(p1, p2, color,select);	//重新绘制
+			this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
 
 		}
 
@@ -328,8 +355,8 @@ void CMyCadView::OnExportImage()
 	CImage image;
 	image.Attach(hbitmap);                //将位图转化为一般图像
 
-	CString  strFilter = _T("位图文件(*.bmp)|*.bmp|JPEG 图像文件|*.jpg|GIF图像文件 | *.gif | PNG图像文件 | *.png |其他格式(*.*) | *.* || ");
-	CFileDialog dlg(FALSE, _T("bmp"), _T("MyCadImage.bmp"), NULL, strFilter);
+	CString  strFilter = _T("图片文件(*.jpg)|*.jpg||");
+	CFileDialog dlg(FALSE, _T("jpg"), _T("MyCadImage"), NULL, strFilter);
 
 	if (dlg.DoModal() != IDOK)	//模态窗口显示
 		return;
@@ -400,3 +427,98 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 	return CView::PreTranslateMessage(pMsg);
 }
 
+UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
+{
+	//AfxMessageBox(_T("xiancheng"));
+	CMyCadView *p = (CMyCadView *)lpParam;
+	while (true)
+	{
+		
+		//_cprintf("a");
+			
+		int select = p->currentEditStep;	//获取选中的图形
+		if (select < 0)	//没有选中图形，继续循环
+			continue;
+			
+			
+		p->HighObject(select);
+			
+	}
+
+	return 0;
+}
+
+
+
+
+
+void CMyCadView::OnExportFile()
+{
+	// TODO: 在此添加命令处理程序代码
+
+	
+
+	TCHAR szFilter[] = _T("文本文件(*.txt)|*.txt||");
+	// 构造保存文件对话框   
+	CFileDialog fileDlg(FALSE, _T("txt"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+	CString FileName;
+
+	// 显示保存文件对话框   
+	if (IDOK == fileDlg.DoModal())
+	{
+		// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
+		FileName = fileDlg.GetPathName();
+
+	}
+	else
+		return;
+
+
+	CFile file;
+	
+	
+	try
+	{
+		file.Open(FileName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);	//打开文件
+
+		file.SeekToBegin();
+		CString str = _T("");
+		CString drawType;
+		CString centerPoint;
+		CString points = _T("");
+		for (int i = 0; i < 1000; i++)
+		{
+			points = _T("");
+			switch (editSteps[i].type)
+			{
+			case LINE:
+				drawType = _T("LINE");	//写入绘制类型
+				centerPoint.Format(_T("%d %d"), editSteps[i].centerPoint.x, editSteps[i].centerPoint.y);//写入中心点
+				Points* p = &(editSteps[i].point);
+				while (p)
+				{
+					CString s;
+					COLORREF color;
+					s.Format(_T("%d %d\t%d %d %d\t"), p->x, p->y, GetRValue(p->color), GetGValue(p->color), GetBValue(p->color));
+					points += s;
+					p = p->next;
+				}
+				str += (drawType + _T("\t") + centerPoint + _T("\t") + points +  _T("\n"));
+				break;
+
+			/*default:
+				break;*/
+			}
+		}
+		file.Write(str, str.GetLength()*2);
+		file.Close();	//关闭文件
+		MessageBox(_T("写入成功！"));
+	}
+	catch (CFileException* e)
+	{
+
+		MessageBox(_T("ERROR"));
+		file.Abort();
+		e->Delete();
+	}
+}

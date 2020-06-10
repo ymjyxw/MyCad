@@ -1,9 +1,12 @@
 ﻿
 // MyCadView.h: CMyCadView 类的接口
 //
-
+#include "MyCadDoc.h"
+#include <conio.h>
 #pragma once
 #define MAXEDITNUM 1000;
+
+
 
 class CMyCadView : public CView
 {
@@ -40,7 +43,7 @@ protected:
 // 生成的消息映射函数
 protected:
 	afx_msg void OnFilePrintPreview();
-//	afx_msg void OnRButtonUp(UINT nFlags, CPoint point);
+
 	afx_msg void OnContextMenu(CWnd* pWnd, CPoint point);
 	DECLARE_MESSAGE_MAP()
 
@@ -74,24 +77,30 @@ public:
 	}pEditStep;
 
 	int currentStep = 0;	//当前已经操作了的操作步骤
-	int currentEditStep = 0;		//当前正在修改的图形所在步骤
-
+	int currentEditStep = -1;		//当前正在修改的图形所在步骤,全局变量
+	
 	StepPoints stepPoints[1000];//存储每一步绘制的像素点，保存1000条操作记录
 	EditStep editSteps[1000];//记录每一步的绘制类型，及其关键点
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	bool beginTransform = false;	//记录当前是否进行移动
-
+	CWinThread* pThread_highLight;	//高亮线程
 
 	void DrawPoints(CDC *pDC);	//绘制点
-	void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
+	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
 	void SetTreeDialog(int num, CString str);	//设置树状图
+	void HighObject(int step);
+
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
-	afx_msg void OnExportImage();
+	afx_msg void OnExportImage();	//导出图片
+	afx_msg void OnExportFile();	//导出绘制过程（导出场景）
+	virtual BOOL PreTranslateMessage(MSG* pMsg);	//键盘事件
+	static UINT pThread_highLightFunc(LPVOID lpParam);	//线程启动函数，实时监控数据，移动时，对图形矩形高亮
 
-	virtual BOOL PreTranslateMessage(MSG* pMsg);
-	
+
+
+
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本
