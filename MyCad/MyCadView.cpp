@@ -41,8 +41,9 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 //	ON_WM_KEYDOWN()
 
 //ON_WM_TIMER()
-ON_COMMAND(ID_32776, &CMyCadView::OnExportFile)
+ON_COMMAND(ID_32776, &CMyCadView::OnExportVideo)
 ON_COMMAND(ID_FILE_NEW, &CMyCadView::OnFileNew)
+ON_COMMAND(ID_FILE_SAVE, &CMyCadView::OnFileSave)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -173,6 +174,7 @@ void CMyCadView::SetTreeDialog(int num, CString str)
 
 
 }
+
 
 void CMyCadView::HighObject(int step)
 {
@@ -418,6 +420,13 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 				return TRUE;
 			}
 			break;
+		case 'S'://Ctrl + S
+			if (m_ctrl_down)	//Ctrl+S按下
+			{
+				OnFileSave();
+				return TRUE;
+			}
+			break;
 		case VK_CONTROL:
 			m_ctrl_down = true; return TRUE;
 		default:
@@ -461,12 +470,33 @@ UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 
 
 
-void CMyCadView::OnExportFile()	//导出文件
+void CMyCadView::OnExportVideo()	//导出文件
 {
 	// TODO: 在此添加命令处理程序代码
 
 	
 
+
+}
+
+
+void CMyCadView::OnFileNew()	//重新新建场景
+{
+	// TODO: 在此添加命令处理程序代码
+	currentStep = 0;
+	currentEditStep = -1;
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	pMainFrame->m_treeBoxView.m_treeDialog.DelAllTreeItem(); //删除树状图
+
+	Invalidate();
+}
+
+
+
+
+void CMyCadView::OnFileSave() //保存文件
+{
+	// TODO: 在此添加命令处理程序代码
 	TCHAR szFilter[] = _T("文本文件(*.txt)|*.txt||");
 	// 构造保存文件对话框   
 	CFileDialog fileDlg(FALSE, _T("txt"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
@@ -484,8 +514,8 @@ void CMyCadView::OnExportFile()	//导出文件
 
 
 	CFile file;
-	
-	
+
+
 	try
 	{
 		file.Open(FileName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);	//打开文件
@@ -512,14 +542,14 @@ void CMyCadView::OnExportFile()	//导出文件
 					points += s;
 					p = p->next;
 				}
-				str += (drawType + _T("\t") + centerPoint + _T("\t") + points +  _T("\n"));
+				str += (drawType + _T("\t") + centerPoint + _T("\t") + points + _T("\n"));
 				break;
 
-			/*default:
-				break;*/
+				/*default:
+					break;*/
 			}
 		}
-		file.Write(str, str.GetLength()*2);
+		file.Write(str, str.GetLength() * 2);
 		file.Close();	//关闭文件
 		MessageBox(_T("写入成功！"));
 	}
@@ -530,16 +560,4 @@ void CMyCadView::OnExportFile()	//导出文件
 		file.Abort();
 		e->Delete();
 	}
-}
-
-
-void CMyCadView::OnFileNew()	//重新新建场景
-{
-	// TODO: 在此添加命令处理程序代码
-	currentStep = 0;
-	currentEditStep = -1;
-	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
-	pMainFrame->m_treeBoxView.m_treeDialog.DelAllTreeItem(); //删除树状图
-
-	Invalidate();
 }

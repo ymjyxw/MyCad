@@ -94,7 +94,7 @@ public:
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnExportImage();	//导出图片
-	afx_msg void OnExportFile();	//导出绘制过程（导出场景）
+	afx_msg void OnExportVideo();	//导出绘制过程（导出场景）
 	virtual BOOL PreTranslateMessage(MSG* pMsg);	//键盘事件
 	static UINT pThread_highLightFunc(LPVOID lpParam);	//线程启动函数，实时监控数据，移动时，对图形矩形高亮
 
@@ -102,6 +102,7 @@ public:
 
 
 	afx_msg void OnFileNew();
+	afx_msg void OnFileSave();
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本
