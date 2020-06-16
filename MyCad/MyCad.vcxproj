@@ -191,6 +191,7 @@
   <ItemGroup>
     <ClInclude Include="DrawCircle.h" />
     <ClInclude Include="DrawLine.h" />
+    <ClInclude Include="DrawRect.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="JsonClass.h" />
     <ClInclude Include="json\autolink.h" />
@@ -218,6 +219,7 @@
   <ItemGroup>
     <ClCompile Include="DrawCircle.cpp" />
     <ClCompile Include="DrawLine.cpp" />
+    <ClCompile Include="DrawRect.cpp" />
     <ClCompile Include="JsonClass.cpp" />
     <ClCompile Include="MainFrm.cpp" />
     <ClCompile Include="MyCad.cpp" />

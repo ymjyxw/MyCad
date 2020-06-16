@@ -21,6 +21,8 @@ private:
 	static void InitTranslateMatrix(float x, float y, MATRIX * matrix);	//初始化位移矩阵
 	static void MatrixMultipy(PointMatrix * point, MATRIX * matrix);	//矩阵乘变换矩阵
 
+
+
 public:
 	static CPoint myglTranslatef(float x, float y, CPoint * point); //位移函数,传入位移值与位移点，返回位移点
 

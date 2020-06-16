@@ -32,6 +32,8 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON1, &ToolDialog::OnDrawLine)
 	ON_BN_CLICKED(IDC_BUTTON2, &ToolDialog::OnMoveObject)
 	ON_BN_CLICKED(IDC_BUTTON3, &ToolDialog::OnDrawCircle)
+	ON_BN_CLICKED(IDC_BUTTON4, &ToolDialog::OnRotateObject)
+	ON_BN_CLICKED(IDC_BUTTON5, &ToolDialog::OnDrawRect)
 END_MESSAGE_MAP()
 
 
@@ -58,4 +60,18 @@ void ToolDialog::OnDrawCircle()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	currentModel = DRAWCIRCLE;
+}
+
+
+void ToolDialog::OnRotateObject()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = ROTATEOBJECT;
+}
+
+
+void ToolDialog::OnDrawRect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = DRAWRECT;
 }

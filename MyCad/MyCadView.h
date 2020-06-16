@@ -62,12 +62,14 @@ public:
 	{
 		int step;		//第step步
 		Points  point;	//当前操作步骤链表头节点
+		int xl, xr, yt, yb;		//边的高度
 	}*pStepPoints;
 
 	enum Type {
 		LINE,
 		RECT,
-		CIRCLE
+		CIRCLE,
+		
 	};
 
 
@@ -90,6 +92,7 @@ public:
 
 	void DrawPoints(CDC *pDC);	//绘制点
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
+	void SetRect(CPoint p1, CPoint p2, COLORREF color, int s); //设置矩形
 	void SetCircle(CPoint p1,CPoint p2, COLORREF color, int s); //设置圆
 	void SetTreeDialog(int num, CString str);	//设置树状图
 	void HighObject(int step);

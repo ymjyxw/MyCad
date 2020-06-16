@@ -44,4 +44,6 @@ public:
 	afx_msg void OnDrawLine();
 	afx_msg void OnMoveObject();
 	afx_msg void OnDrawCircle();
+	afx_msg void OnRotateObject();
+	afx_msg void OnDrawRect();
 };

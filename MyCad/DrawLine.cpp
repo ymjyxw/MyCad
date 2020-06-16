@@ -22,10 +22,12 @@ void DrawLine::DDALine(int x0, int y0, int x1, int y1, COLORREF color)	//画线
 		setPoint(p, x, y, color);   //四舍五入后画设置点
 		x += dx;
 		y += dy;
-		StepPoint* q = new StepPoint;	//创建一个新的点
-		q->next = NULL;
-		p->next = q;
-		p = p->next;
+		if (i < e - 1) {
+			StepPoint* q = new StepPoint;	//创建一个新的点
+			q->next = NULL;
+			p->next = q;
+			p = p->next;
+		}
 	}
 }
 
