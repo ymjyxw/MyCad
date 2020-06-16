@@ -1,41 +1,108 @@
 #include "pch.h"
 #include "JsonClass.h"
 
+void JsonClass::SetJsonLineStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2)
+{
+	step[total_step]["type"] = Json::Value("LINE");
+
+	//数组形式
+
+	step[total_step]["CenterPoint"].append(cx);
+	step[total_step]["CenterPoint"].append(cy);
+	
+
+	step[total_step]["Point_1"].append(x1);
+	step[total_step]["Point_1"].append(y1);
+	step[total_step]["Point_1"].append(r1);
+	step[total_step]["Point_1"].append(g1);
+	step[total_step]["Point_1"].append(b1);
+		
+	step[total_step]["Point_2"].append(x2);
+	step[total_step]["Point_2"].append(y2);
+	step[total_step]["Point_2"].append(r2);
+	step[total_step]["Point_2"].append(g2);
+	step[total_step]["Point_2"].append(b2);
+
+	string str;
+	CString cstr;
+	cstr.Format("%03d", total_step + 1);
+	str = cstr.GetBuffer(0);
+
+	//子节点挂到根节点上
+	root["DrawStep_" + str] = Json::Value(step[total_step]);
+	if(total_step<999)
+		total_step++;
+}
+
+void JsonClass::SetJsonCircleStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2)
+{
+	step[total_step]["type"] = Json::Value("CIRCLE");
+
+	//数组形式
+
+	step[total_step]["CenterPoint"].append(cx);
+	step[total_step]["CenterPoint"].append(cy);
+
+
+	step[total_step]["Point_1"].append(x1);
+	step[total_step]["Point_1"].append(y1);
+	step[total_step]["Point_1"].append(r1);
+	step[total_step]["Point_1"].append(g1);
+	step[total_step]["Point_1"].append(b1);
+
+	step[total_step]["Point_2"].append(x2);
+	step[total_step]["Point_2"].append(y2);
+	step[total_step]["Point_2"].append(r2);
+	step[total_step]["Point_2"].append(g2);
+	step[total_step]["Point_2"].append(b2);
+
+	string str;
+	CString cstr;
+	cstr.Format("%03d", total_step + 1);
+	str = cstr.GetBuffer(0);
+
+	//子节点挂到根节点上
+	root["DrawStep_" + str] = Json::Value(step[total_step]);
+	if (total_step < 999)
+		total_step++;
+
+}
+
+void JsonClass::SetJsonRectStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2)
+{
+	step[total_step]["type"] = Json::Value("RECT");
+
+	//数组形式
+
+	step[total_step]["CenterPoint"].append(cx);
+	step[total_step]["CenterPoint"].append(cy);
+
+
+	step[total_step]["Point_1"].append(x1);
+	step[total_step]["Point_1"].append(y1);
+	step[total_step]["Point_1"].append(r1);
+	step[total_step]["Point_1"].append(g1);
+	step[total_step]["Point_1"].append(b1);
+
+	step[total_step]["Point_2"].append(x2);
+	step[total_step]["Point_2"].append(y2);
+	step[total_step]["Point_2"].append(r2);
+	step[total_step]["Point_2"].append(g2);
+	step[total_step]["Point_2"].append(b2);
+
+	string str;
+	CString cstr;
+	cstr.Format("%03d", total_step + 1);
+	str = cstr.GetBuffer(0);
+
+	//子节点挂到根节点上
+	root["DrawStep_" + str] = Json::Value(step[total_step]);
+	if (total_step < 999)
+		total_step++;
+}
 void JsonClass::ExportJsonFile(CString path)
 {
 
-
-
-	//根节点
-	Json::Value root;
-
-	//子节点
-	Json::Value step[1000];
-	string str;
-	CString cstr;
-	int i = 0;
-	while (i < 10)
-	{
-		//子节点属性
-		step[i]["type"] = Json::Value("LINE");
-		//数组形式
-		step[i]["Point_1"].append(1);
-		step[i]["Point_1"].append(1);
-		step[i]["Point_1"].append(1);
-
-		step[i]["Point_2"].append(1);
-		step[i]["Point_2"].append(1);
-		step[i]["Point_2"].append(1);
-
-		
-		cstr.Format("%03d", i+1);
-		str =  cstr.GetBuffer(0);
-
-		//子节点挂到根节点上
-		root["DrawStep_"+str] = Json::Value(step[i]);
-
-		i++;
-	}
 
 	Json::StyledWriter sw;
 
@@ -46,7 +113,7 @@ void JsonClass::ExportJsonFile(CString path)
 	os.close();
 }
 
-void JsonClass::OpenJsonFile(CString path)
+void JsonClass::OpenJsonFile()
 {
 	CString strFilter, fileName;
 

@@ -62,6 +62,7 @@ CMyCadView::CMyCadView() noexcept
 
 CMyCadView::~CMyCadView()
 {
+	pThread_highLight->Delete();	//线程终止
 	FreeConsole();//释放控制台资源
 }
 
@@ -184,6 +185,7 @@ void CMyCadView::HighObject(int step)
 {
 	
 	CDC * pDC = GetDC();//初始化指针pDC
+	
 	CPoint cp = editSteps[step].centerPoint;
 	CPoint ld = cp - CPoint(10, 10);
 	CPoint rt = cp + CPoint(10, 10);
@@ -361,7 +363,7 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
 			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
 
-			this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
+			this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
 
 		}
 
@@ -670,7 +672,23 @@ void CMyCadView::OnFileSave()
 		// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
 		FileName = fileDlg.GetPathName();
 		
-		JsonClass::ExportJsonFile(FileName);
+		JsonClass MyJson;
+		int i = 0;
+		while (i < currentStep)	//写入每一步的操作步骤到json中
+		{
+			pEditStep  p = editSteps[i];
+
+			if (p.type == LINE)
+				MyJson.SetJsonLineStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			else if (p.type == CIRCLE)
+				MyJson.SetJsonCircleStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			else if (p.type == RECT)
+				MyJson.SetJsonRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			i++;
+		}
+
+		MyJson.ExportJsonFile(FileName);	//导出json文件
+		MessageBox(_T("导出文件成功"));
 	}
 	else
 		return;
@@ -684,5 +702,9 @@ void CMyCadView::OnFileSave()
 void CMyCadView::OnFileOpen()
 {
 	// TODO: 在此添加命令处理程序代码
-	JsonClass::OpenJsonFile(_T(""));
+	OnFileNew();	//新建场景
+	JsonClass MyJson;
+	
+	MyJson.OpenJsonFile();
+	
 }
