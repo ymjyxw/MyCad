@@ -44,6 +44,7 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 ON_COMMAND(ID_32776, &CMyCadView::OnExportVideo)
 ON_COMMAND(ID_FILE_NEW, &CMyCadView::OnFileNew)
 ON_COMMAND(ID_FILE_SAVE, &CMyCadView::OnFileSave)
+ON_COMMAND(ID_FILE_OPEN, &CMyCadView::OnFileOpen)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -51,14 +52,15 @@ END_MESSAGE_MAP()
 CMyCadView::CMyCadView() noexcept
 {
 	// TODO: 在此处添加构造代码
-	AllocConsole();
+	AllocConsole();//打开控制台
 	pThread_highLight = AfxBeginThread(pThread_highLightFunc, this);//创建线程并启动
-	
-	
+
+
 }
 
 CMyCadView::~CMyCadView()
 {
+	FreeConsole();//释放控制台资源
 }
 
 BOOL CMyCadView::PreCreateWindow(CREATESTRUCT& cs)
@@ -175,7 +177,7 @@ void CMyCadView::SetTreeDialog(int num, CString str)
 
 }
 
-
+//高亮图形
 void CMyCadView::HighObject(int step)
 {
 	
@@ -203,6 +205,7 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWLINE)	//判断操作是否是画线
 	{
 		beginPoint = point;
+		currentEditStep = -1;
 	}
 	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
 	{
@@ -340,11 +343,10 @@ void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 }
 
 
-
+// 导出图片
 void CMyCadView::OnExportImage()
 {
 	// TODO: 在此添加命令处理程序代码
-
 
 	CClientDC dc(this);
 	CRect rect;
@@ -375,13 +377,12 @@ void CMyCadView::OnExportImage()
 	if (FAILED(hResult))
 		MessageBox(_T("保存图像文件失败！"));
 	else
-		MessageBox(_T("文件保存成功！"));
+		MessageBox(_T("图像保存成功！"));
 
 	image.Detach();
 	SelectObject(hdc, hOldMap);
 
-
-
+	
 }
 
 
@@ -445,10 +446,12 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 	return CView::PreTranslateMessage(pMsg);
 }
 
+//高亮线程
 UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 {
 	//AfxMessageBox(_T("xiancheng"));
 	CMyCadView *p = (CMyCadView *)lpParam;
+
 	while (true)
 	{
 		
@@ -457,8 +460,7 @@ UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 		int select = p->currentEditStep;	//获取选中的图形
 		if (select < 0)	//没有选中图形，继续循环
 			continue;
-			
-			
+
 		p->HighObject(select);
 			
 	}
@@ -469,7 +471,7 @@ UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 
 
 
-
+//导出视频
 void CMyCadView::OnExportVideo()	//导出文件
 {
 	// TODO: 在此添加命令处理程序代码
@@ -480,7 +482,9 @@ void CMyCadView::OnExportVideo()	//导出文件
 }
 
 
-void CMyCadView::OnFileNew()	//重新新建场景
+
+//新建场景
+void CMyCadView::OnFileNew()	
 {
 	// TODO: 在此添加命令处理程序代码
 	currentStep = 0;
@@ -493,8 +497,8 @@ void CMyCadView::OnFileNew()	//重新新建场景
 
 
 
-
-void CMyCadView::OnFileSave() //保存文件
+//保存文件
+void CMyCadView::OnFileSave() 
 {
 	// TODO: 在此添加命令处理程序代码
 	TCHAR szFilter[] = _T("文本文件(*.txt)|*.txt||");
@@ -537,7 +541,7 @@ void CMyCadView::OnFileSave() //保存文件
 				while (p)
 				{
 					CString s;
-					COLORREF color;
+					
 					s.Format(_T("%d %d\t%d %d %d\t"), p->x, p->y, GetRValue(p->color), GetGValue(p->color), GetBValue(p->color));
 					points += s;
 					p = p->next;
@@ -559,5 +563,78 @@ void CMyCadView::OnFileSave() //保存文件
 		MessageBox(_T("ERROR"));
 		file.Abort();
 		e->Delete();
+	}
+}
+
+
+//打开文件
+void CMyCadView::OnFileOpen()
+{
+	// TODO: 在此添加命令处理程序代码
+
+	CString strFilter, fileName;
+
+	strFilter = "Text Files(*.txt)|*.txt||";
+
+	CFileDialog dlg(TRUE, NULL, NULL, OFN_EXPLORER | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_FILEMUSTEXIST, strFilter);
+
+	if (dlg.DoModal() == IDOK)//显示打开文件对话框
+	{
+		OnFileNew();	//新建项目
+
+		fileName = dlg.GetPathName();
+
+		CFile openfile(fileName, CFile::modeRead);//构造CFile对象
+
+		int length = openfile.GetLength();//获取文件长度
+
+		char* charText;
+
+		charText = new char[length];
+
+		openfile.Read(charText, length);	//读取txt里面的所有数据
+
+
+		int i = 0;
+		int j = 0;
+		CString s;
+		CString num[12];
+		while (charText[i] != '\t')	//获取类型
+		{
+			
+			if (charText[i] == '\0')
+			{
+				i++;
+				continue;
+			}
+			s += charText[i];
+			i++;
+		}
+		if (s == _T("LINE"))	//写入的是线条,下面获取关键点信息，然后绘制线条
+		{
+			_cprintf("%s", s);
+			i++;
+			while (charText[i] != '\n')	//读取一行
+			{
+
+				while (charText[i] != ' '&& charText[i] != '\t')
+				{
+
+					if (charText[i] == '\0')
+					{
+						i++;
+						continue;
+					}
+					num[j] += charText[i];
+
+					i++;
+				}
+				j++;
+			}
+			_cprintf("%s", num[1]);
+		}
+		
+		
+
 	}
 }

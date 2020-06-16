@@ -3,6 +3,8 @@
 //
 #include "MyCadDoc.h"
 #include <conio.h>
+#include<string>
+using namespace std;     
 #pragma once
 #define MAXEDITNUM 1000;
 
@@ -103,6 +105,7 @@ public:
 
 	afx_msg void OnFileNew();
 	afx_msg void OnFileSave();
+	afx_msg void OnFileOpen();
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本

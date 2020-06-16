@@ -5,8 +5,8 @@
 #include "MyCad.h"
 #include "TreeDialog.h"
 #include "afxdialogex.h"
-
-
+#include "MainFrm.h"
+#include "MyCadView.h"
 // TreeDialog 对话框
 
 IMPLEMENT_DYNAMIC(TreeDialog, CDialogEx)
@@ -80,6 +80,7 @@ int TreeDialog::ChangeStep()
 }
 
 
+
 BEGIN_MESSAGE_MAP(TreeDialog, CDialogEx)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &TreeDialog::OnTvnSelchangedTree1)
 END_MESSAGE_MAP()
@@ -105,10 +106,8 @@ void TreeDialog::OnTvnSelchangedTree1(NMHDR *pNMHDR, LRESULT *pResult)
 	// 将字符串显示到编辑框中   
 	SetDlgItemText(IDC_EDIT1, strText);
 	tree_currentStep = ChangeStep();
-	/*CMainFrame* pFrame = (CMainFrame *)(AfxGetApp()->m_pMainWnd);
-	CMyCadView* pViw = (CMyCadView*)pFrame->GetActiveView();
-	pViw->currentEditStep = tree_currentStep;*/
 	
+
 }
 
 
