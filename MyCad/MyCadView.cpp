@@ -163,7 +163,7 @@ CMyCadDoc* CMyCadView::GetDocument() const // 非调试版本是内联的
 
 // CMyCadView 消息处理程序
 
-//设置树状图
+//设置树状图 num - 绘制步骤 str - 绘制操作
 void CMyCadView::SetTreeDialog(int num, CString str)
 {
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
@@ -528,70 +528,5 @@ void CMyCadView::OnFileSave()
 void CMyCadView::OnFileOpen()
 {
 	// TODO: 在此添加命令处理程序代码
-
-	CString strFilter, fileName;
-
-	strFilter = "Text Files(*.txt)|*.txt||";
-
-	CFileDialog dlg(TRUE, NULL, NULL, OFN_EXPLORER | OFN_HIDEREADONLY | OFN_ENABLESIZING | OFN_FILEMUSTEXIST, strFilter);
-
-	if (dlg.DoModal() == IDOK)//显示打开文件对话框
-	{
-		OnFileNew();	//新建项目
-
-		fileName = dlg.GetPathName();
-
-		CFile openfile(fileName, CFile::modeRead);//构造CFile对象
-
-		int length = openfile.GetLength();//获取文件长度
-
-		char* charText;
-
-		charText = new char[length];
-
-		openfile.Read(charText, length);	//读取txt里面的所有数据
-
-
-		int i = 0;
-		int j = 0;
-		CString s;
-		CString num[12];
-		while (charText[i] != '\t')	//获取类型
-		{
-			
-			if (charText[i] == '\0')
-			{
-				i++;
-				continue;
-			}
-			s += charText[i];
-			i++;
-		}
-		if (s == _T("LINE"))	//写入的是线条,下面获取关键点信息，然后绘制线条
-		{
-			_cprintf("%s", s);
-			i++;
-			while (charText[i] != '\n')	//读取一行
-			{
-
-				while (charText[i] != ' '&& charText[i] != '\t')
-				{
-
-					if (charText[i] == '\0')
-					{
-						i++;
-						continue;
-					}
-					num[j] += charText[i];
-
-					i++;
-				}
-				j++;
-			}
-			_cprintf("%s", num[1]);
-		}
-		
-		
-
-	}
+	JsonClass::OpenJsonFile(_T(""));
 }
