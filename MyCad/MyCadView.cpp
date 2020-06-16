@@ -17,7 +17,7 @@
 #include "MainFrm.h"
 #include "ToolDialog.h"
 #include "MyTransform.h"
-
+#include "JsonClass.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -122,7 +122,7 @@ void CMyCadView::OnContextMenu(CWnd* /* pWnd */, CPoint point)
 #endif
 }
 
-
+// 绘制所有的点
 void CMyCadView::DrawPoints(CDC *pDC)
 {
 	int i = 0;
@@ -163,7 +163,7 @@ CMyCadDoc* CMyCadView::GetDocument() const // 非调试版本是内联的
 
 // CMyCadView 消息处理程序
 
-
+//设置树状图
 void CMyCadView::SetTreeDialog(int num, CString str)
 {
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
@@ -299,6 +299,7 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 }
 
 
+//设置线条
 void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 {
 	DrawLine MyDrawLine;
@@ -386,7 +387,7 @@ void CMyCadView::OnExportImage()
 }
 
 
-
+//捕捉快捷键
 BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 {
 	
@@ -451,16 +452,17 @@ UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 {
 	//AfxMessageBox(_T("xiancheng"));
 	CMyCadView *p = (CMyCadView *)lpParam;
-
+	
+	
 	while (true)
 	{
 		
 		//_cprintf("a");
-			
+		
 		int select = p->currentEditStep;	//获取选中的图形
 		if (select < 0)	//没有选中图形，继续循环
 			continue;
-
+	
 		p->HighObject(select);
 			
 	}
@@ -500,70 +502,72 @@ void CMyCadView::OnFileNew()
 //保存文件
 void CMyCadView::OnFileSave() 
 {
-	// TODO: 在此添加命令处理程序代码
-	TCHAR szFilter[] = _T("文本文件(*.txt)|*.txt||");
-	// 构造保存文件对话框   
-	CFileDialog fileDlg(FALSE, _T("txt"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
-	CString FileName;
+	//// TODO: 在此添加命令处理程序代码
+	//TCHAR szFilter[] = _T("文本文件(*.txt)|*.txt||");
+	//// 构造保存文件对话框   
+	//CFileDialog fileDlg(FALSE, _T("txt"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+	//CString FileName;
 
-	// 显示保存文件对话框   
-	if (IDOK == fileDlg.DoModal())
-	{
-		// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
-		FileName = fileDlg.GetPathName();
+	//// 显示保存文件对话框   
+	//if (IDOK == fileDlg.DoModal())
+	//{
+	//	// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
+	//	FileName = fileDlg.GetPathName();
 
-	}
-	else
-		return;
-
-
-	CFile file;
+	//}
+	//else
+	//	return;
 
 
-	try
-	{
-		file.Open(FileName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);	//打开文件
+	//CFile file;
 
-		file.SeekToBegin();
-		CString str = _T("");
-		CString drawType;
-		CString centerPoint;
-		CString points = _T("");
-		for (int i = 0; i < currentStep; i++)
-		{
-			points = _T("");
-			switch (editSteps[i].type)
-			{
-			case LINE:
-				drawType = _T("LINE");	//写入绘制类型
-				centerPoint.Format(_T("%d %d"), editSteps[i].centerPoint.x, editSteps[i].centerPoint.y);//写入中心点
-				Points* p = &(editSteps[i].point);
-				while (p)
-				{
-					CString s;
-					
-					s.Format(_T("%d %d\t%d %d %d\t"), p->x, p->y, GetRValue(p->color), GetGValue(p->color), GetBValue(p->color));
-					points += s;
-					p = p->next;
-				}
-				str += (drawType + _T("\t") + centerPoint + _T("\t") + points + _T("\n"));
-				break;
 
-				/*default:
-					break;*/
-			}
-		}
-		file.Write(str, str.GetLength() * 2);
-		file.Close();	//关闭文件
-		MessageBox(_T("写入成功！"));
-	}
-	catch (CFileException* e)
-	{
+	//try
+	//{
+	//	file.Open(FileName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);	//打开文件
 
-		MessageBox(_T("ERROR"));
-		file.Abort();
-		e->Delete();
-	}
+	//	file.SeekToBegin();
+	//	CString str = _T("");
+	//	CString drawType;
+	//	CString centerPoint;
+	//	CString points = _T("");
+	//	for (int i = 0; i < currentStep; i++)
+	//	{
+	//		points = _T("");
+	//		switch (editSteps[i].type)
+	//		{
+	//		case LINE:
+	//			drawType = _T("LINE");	//写入绘制类型
+	//			centerPoint.Format(_T("%d %d"), editSteps[i].centerPoint.x, editSteps[i].centerPoint.y);//写入中心点
+	//			Points* p = &(editSteps[i].point);
+	//			while (p)
+	//			{
+	//				CString s;
+	//				
+	//				s.Format(_T("%d %d\t%d %d %d\t"), p->x, p->y, GetRValue(p->color), GetGValue(p->color), GetBValue(p->color));
+	//				points += s;
+	//				p = p->next;
+	//			}
+	//			str += (drawType + _T("\t") + centerPoint + _T("\t") + points + _T("\n"));
+	//			break;
+
+	//			/*default:
+	//				break;*/
+	//		}
+	//	}
+	//	file.Write(str, str.GetLength() * 2);
+	//	file.Close();	//关闭文件
+	//	MessageBox(_T("写入成功！"));
+	//}
+	//catch (CFileException* e)
+	//{
+
+	//	MessageBox(_T("ERROR"));
+	//	file.Abort();
+	//	e->Delete();
+	//}
+	JsonClass jsonClass;
+	jsonClass.ExportJsonFile();
 }
 
 

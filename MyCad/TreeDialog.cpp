@@ -5,8 +5,7 @@
 #include "MyCad.h"
 #include "TreeDialog.h"
 #include "afxdialogex.h"
-#include "MainFrm.h"
-#include "MyCadView.h"
+
 // TreeDialog 对话框
 
 IMPLEMENT_DYNAMIC(TreeDialog, CDialogEx)
@@ -27,6 +26,7 @@ void TreeDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_TREE1, m_treeCtrl);
 }
 
+// 设置树状图
 void TreeDialog::SetTreeItem(CString str)
 {
 
@@ -36,6 +36,7 @@ void TreeDialog::SetTreeItem(CString str)
 	ItemCount++;
 	m_treeCtrl.Expand(hRoot, TVE_EXPAND);	//默认全部展开
 }
+
 
 void TreeDialog::DelTreeItem()
 {
