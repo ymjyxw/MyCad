@@ -83,12 +83,14 @@ public:
 	
 	StepPoints stepPoints[1000];//存储每一步绘制的像素点，保存1000条操作记录
 	EditStep editSteps[1000];//记录每一步的绘制类型，及其关键点
+
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	bool beginTransform = false;	//记录当前是否进行移动
 	CWinThread* pThread_highLight;	//高亮线程
 
 	void DrawPoints(CDC *pDC);	//绘制点
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
+	void SetCircle(CPoint p1,CPoint p2, COLORREF color, int s); //设置圆
 	void SetTreeDialog(int num, CString str);	//设置树状图
 	void HighObject(int step);
 

@@ -189,6 +189,7 @@
     </ResourceCompile>
   </ItemDefinitionGroup>
   <ItemGroup>
+    <ClInclude Include="DrawCircle.h" />
     <ClInclude Include="DrawLine.h" />
     <ClInclude Include="framework.h" />
     <ClInclude Include="JsonClass.h" />
@@ -215,6 +216,7 @@
     <ClInclude Include="TreeDialog.h" />
   </ItemGroup>
   <ItemGroup>
+    <ClCompile Include="DrawCircle.cpp" />
     <ClCompile Include="DrawLine.cpp" />
     <ClCompile Include="JsonClass.cpp" />
     <ClCompile Include="MainFrm.cpp" />

@@ -14,6 +14,7 @@
 #include "MyCadDoc.h"
 #include "MyCadView.h"
 #include "DrawLine.h"
+#include "DrawCircle.h"
 #include "MainFrm.h"
 #include "ToolDialog.h"
 #include "MyTransform.h"
@@ -207,6 +208,11 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 		beginPoint = point;
 		currentEditStep = -1;
 	}
+	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWCIRCLE)	//判断操作是否是画线
+	{
+		beginPoint = point;
+		currentEditStep = -1;
+	}
 	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
 	{
 		beginTransform = true;
@@ -221,14 +227,17 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	COLORREF color = pMainFrame->m_toolBoxView.m_toolDialog.currentColor;	//获取颜色
+
+	endPoint = point;
+	while (endPoint == beginPoint)	//起点终点想同，退出
+	{
+		return;
+	}
+
+
 	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWLINE)	//判断操作是否是画线
 	{
-		COLORREF color = pMainFrame->m_toolBoxView.m_toolDialog.currentColor;	//获取颜色
-		endPoint = point;
-		while (endPoint == beginPoint)	//起点终点想同，退出
-		{
-			return;
-		}
 		
 		this->SetLine(beginPoint, endPoint, color,currentStep);
 
@@ -241,6 +250,20 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		
 		this->SetTreeDialog(currentStep,_T("绘制直线"));
 
+	}
+
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWCIRCLE)
+	{
+		this->SetCircle(beginPoint, endPoint, color, currentStep);
+
+		Invalidate();
+
+		beginPoint = CPoint(0, 0);	//重置点
+		endPoint = CPoint(0, 0);
+
+		currentStep++;	//绘制步骤+1
+
+		this->SetTreeDialog(currentStep, _T("绘制圆形"));
 	}
 	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
 	{
@@ -287,6 +310,26 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
 				
 			this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
+
+		}
+
+		if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是线条
+		{
+			COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+			CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+
+			//p1 += (point - editSteps[currentStep].centerPoint);//获取移动后的点
+			//p2 += (point - editSteps[currentStep].centerPoint);
+
+			int dx = point.x - editSteps[currentEditStep].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[currentEditStep].centerPoint.y;
+
+			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
+			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
+
+			this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
 
 		}
 
@@ -341,6 +384,40 @@ void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 	newPoint->next = NULL;
 
 
+}
+
+void CMyCadView::SetCircle(CPoint p1, CPoint p2, COLORREF color, int s)
+{
+	DrawCircle MyDrawCircle;
+	MyDrawCircle.MidPntCircle(p1.x, p1.y, p2.x, p2.y, color);
+	DrawLine::pStepPoint p = MyDrawCircle.stepPoint;	//获取MyDrawLine的像素点
+	stepPoints[s].step = s;	//写入操作步骤
+	Points* q = &(stepPoints[s].point);	//获取表头结点
+	while (p)	//写入像素点数据
+	{
+	
+		q->x = p->x;
+		q->y = p->y;
+		q->color = p->color;
+		Points* nq = new Points;
+		nq->next = NULL;
+		q->next = nq;
+		q = q->next;
+		p = p->next;
+	}
+
+	//保存操作记录
+	editSteps[s].type = CIRCLE; //绘制的是线条
+	editSteps[s].centerPoint = CPoint(p1.x, p1.y);//中心点
+	editSteps[s].point.x = p1.x;	//写入关键点数据
+	editSteps[s].point.y = p1.y;
+	editSteps[s].point.color = color;
+	Points* newPoint = new Points;
+	editSteps[s].point.next = newPoint;
+	newPoint->x = p2.x;	//写入关键点数据
+	newPoint->y = p2.y;
+	newPoint->color = color;
+	newPoint->next = NULL;
 }
 
 
@@ -450,15 +527,12 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 //高亮线程
 UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 {
-	//AfxMessageBox(_T("xiancheng"));
 	CMyCadView *p = (CMyCadView *)lpParam;
 	int select;
 	
 	while (true)
 	{
-		
-		//_cprintf("a");
-		
+
 		select = p->currentEditStep;	//获取选中的图形
 		if (select < 0)	//没有选中图形，继续循环
 			continue;

@@ -87,6 +87,9 @@
     <ClInclude Include="JsonClass.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DrawCircle.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyCad.cpp">
@@ -126,6 +129,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="JsonClass.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawCircle.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

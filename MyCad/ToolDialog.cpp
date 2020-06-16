@@ -31,6 +31,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	
 	ON_BN_CLICKED(IDC_BUTTON1, &ToolDialog::OnDrawLine)
 	ON_BN_CLICKED(IDC_BUTTON2, &ToolDialog::OnMoveObject)
+	ON_BN_CLICKED(IDC_BUTTON3, &ToolDialog::OnDrawCircle)
 END_MESSAGE_MAP()
 
 
@@ -50,4 +51,11 @@ void ToolDialog::OnMoveObject()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	currentModel = MOVEOBJECT;
+}
+
+
+void ToolDialog::OnDrawCircle()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = DRAWCIRCLE;
 }
