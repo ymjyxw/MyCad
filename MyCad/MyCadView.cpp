@@ -452,14 +452,14 @@ UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
 {
 	//AfxMessageBox(_T("xiancheng"));
 	CMyCadView *p = (CMyCadView *)lpParam;
-	
+	int select;
 	
 	while (true)
 	{
 		
 		//_cprintf("a");
 		
-		int select = p->currentEditStep;	//获取选中的图形
+		select = p->currentEditStep;	//获取选中的图形
 		if (select < 0)	//没有选中图形，继续循环
 			continue;
 	
@@ -502,72 +502,25 @@ void CMyCadView::OnFileNew()
 //保存文件
 void CMyCadView::OnFileSave() 
 {
-	//// TODO: 在此添加命令处理程序代码
-	//TCHAR szFilter[] = _T("文本文件(*.txt)|*.txt||");
-	//// 构造保存文件对话框   
-	//CFileDialog fileDlg(FALSE, _T("txt"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
-	//CString FileName;
+	// TODO: 在此添加命令处理程序代码
+	TCHAR szFilter[] = _T("json文件(*.json)|*.json||");
+	//构造保存文件对话框   
+	CFileDialog fileDlg(FALSE, _T("json"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+	CString FileName;
 
-	//// 显示保存文件对话框   
-	//if (IDOK == fileDlg.DoModal())
-	//{
-	//	// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
-	//	FileName = fileDlg.GetPathName();
-
-	//}
-	//else
-	//	return;
-
-
-	//CFile file;
+	// 显示保存文件对话框   
+	if (IDOK == fileDlg.DoModal())
+	{
+		// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
+		FileName = fileDlg.GetPathName();
+		
+		JsonClass::ExportJsonFile(FileName);
+	}
+	else
+		return;
 
 
-	//try
-	//{
-	//	file.Open(FileName, CFile::modeCreate | CFile::modeWrite | CFile::typeBinary);	//打开文件
 
-	//	file.SeekToBegin();
-	//	CString str = _T("");
-	//	CString drawType;
-	//	CString centerPoint;
-	//	CString points = _T("");
-	//	for (int i = 0; i < currentStep; i++)
-	//	{
-	//		points = _T("");
-	//		switch (editSteps[i].type)
-	//		{
-	//		case LINE:
-	//			drawType = _T("LINE");	//写入绘制类型
-	//			centerPoint.Format(_T("%d %d"), editSteps[i].centerPoint.x, editSteps[i].centerPoint.y);//写入中心点
-	//			Points* p = &(editSteps[i].point);
-	//			while (p)
-	//			{
-	//				CString s;
-	//				
-	//				s.Format(_T("%d %d\t%d %d %d\t"), p->x, p->y, GetRValue(p->color), GetGValue(p->color), GetBValue(p->color));
-	//				points += s;
-	//				p = p->next;
-	//			}
-	//			str += (drawType + _T("\t") + centerPoint + _T("\t") + points + _T("\n"));
-	//			break;
-
-	//			/*default:
-	//				break;*/
-	//		}
-	//	}
-	//	file.Write(str, str.GetLength() * 2);
-	//	file.Close();	//关闭文件
-	//	MessageBox(_T("写入成功！"));
-	//}
-	//catch (CFileException* e)
-	//{
-
-	//	MessageBox(_T("ERROR"));
-	//	file.Abort();
-	//	e->Delete();
-	//}
-	JsonClass jsonClass;
-	jsonClass.ExportJsonFile();
 }
 
 
