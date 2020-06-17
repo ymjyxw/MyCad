@@ -100,6 +100,8 @@ void JsonClass::SetJsonRectStep(int cx, int cy, int x1, int y1, int r1, int g1, 
 	if (total_step < 999)
 		total_step++;
 }
+
+
 void JsonClass::ExportJsonFile(CString path)
 {
 
@@ -140,7 +142,7 @@ void JsonClass::OpenJsonFile()
 
 		Json::Reader reader;
 
-		Json::Value root;
+		
 
 
 
@@ -149,16 +151,7 @@ void JsonClass::OpenJsonFile()
 		if (reader.parse(str, root))
 
 		{
-			Json::Value root_1 = root["DrawStep001"];
-			string t = root_1["type"].asString();
-		
 			
-			if (t.compare("LINE"))
-			{
-				AfxMessageBox(_T("equal"));
-			}
-			else
-				AfxMessageBox(_T("no_equal"));
 			
 
 		}
@@ -170,4 +163,85 @@ void JsonClass::OpenJsonFile()
 
 
 
+}
+
+int JsonClass::GetJsonCount()
+{
+	return root.size();
+}
+
+string JsonClass::GetJsonStepType(int step)
+{
+	if (step > 1000 || step < 1)	//输入不规范
+		return "ERROR";
+	string str;
+	CString cstr;
+	cstr.Format("%03d", step);
+	str = cstr.GetBuffer(0);
+
+
+	Json::Value root_current_step = root["DrawStep_"+str];
+	
+	string type = root_current_step["type"].asString();
+
+	return type;
+	
+}
+
+CPoint JsonClass::GetCenterPoint(int step)
+{
+	if (step > 1000 || step < 1)	//输入不规范
+		return CPoint(0, 0);
+	string str;
+	CString cstr;
+	cstr.Format("%03d", step);
+	str = cstr.GetBuffer(0);
+
+
+	Json::Value root_current_step = root["DrawStep_" + str];
+	int cx = root_current_step["CenterPoint"][0].asInt();
+	int cy = root_current_step["CenterPoint"][1].asInt();
+	
+	return CPoint(cx,cy);
+}
+
+CPoint JsonClass::GetPoint(int step, int num)
+{
+	if (step > 1000 || step < 1)	//输入不规范
+		return CPoint(0,0);
+	string str;
+	CString cstr;
+	cstr.Format("%03d", step);
+	str = cstr.GetBuffer(0);
+	Json::Value root_current_step = root["DrawStep_" + str];
+	
+	string str_num;
+	str_num = "Point_" + std::to_string(num);
+
+	int x = root_current_step[str_num][0].asInt();
+	int y = root_current_step[str_num][1].asInt();
+
+	return CPoint(x, y);
+
+}
+
+COLORREF JsonClass::GetColor(int step, int num)
+{
+	if (step > 1000 || step < 1)	//输入不规范
+		return RGB(0,0,0);
+	string str;
+	CString cstr;
+	cstr.Format("%03d", step);
+	str = cstr.GetBuffer(0);
+	Json::Value root_current_step = root["DrawStep_" + str];
+
+	string str_num;
+	str_num = "Point_" + std::to_string(num);
+
+	int r = root_current_step[str_num][2].asInt();
+	int g = root_current_step[str_num][3].asInt();
+	int b = root_current_step[str_num][4].asInt();
+
+	
+	return RGB(r, g, b);
 }

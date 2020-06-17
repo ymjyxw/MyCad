@@ -24,5 +24,11 @@ public:
 	void ExportJsonFile(CString path);	//保存json文件
 	void OpenJsonFile(); //打开json文件
 	
+	int GetJsonCount();	//获取当前json root下的数目
+
+	string GetJsonStepType(int step);// 获取第step的类型
+	CPoint GetCenterPoint(int step);	//获取中心点
+	CPoint GetPoint(int step, int num); //获取第step步的第num个关键点
+	COLORREF GetColor(int step, int num); //获取第step步的第num个关键点颜色
 };
 

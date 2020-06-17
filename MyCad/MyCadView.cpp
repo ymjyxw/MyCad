@@ -85,6 +85,7 @@ void CMyCadView::OnDraw(CDC* pDC)
 	DrawPoints(pDC); //绘制所有图形
 	
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetApp()->m_pMainWnd;
+	
 	if(currentEditStep>=0 && pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//高亮图形
 		HighObject(currentEditStep);
 
@@ -579,7 +580,7 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 			}
 			break;
 		case 'N'://Ctrl + N
-			if (m_ctrl_down)	//Ctrl+Z按下
+			if (m_ctrl_down)	//Ctrl+N按下
 			{
 				
 				OnFileNew();
@@ -593,6 +594,15 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 				return TRUE;
 			}
 			break;
+		case 'O'://Ctrl + O
+			if (m_ctrl_down)	//Ctrl+O按下
+			{
+
+				OnFileOpen();
+				return TRUE;
+			}
+			break;
+
 		case VK_CONTROL:
 			m_ctrl_down = true; return TRUE;
 		default:
@@ -610,9 +620,6 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 
 	return CView::PreTranslateMessage(pMsg);
 }
-
-
-
 
 
 //导出视频
@@ -689,6 +696,43 @@ void CMyCadView::OnFileOpen()
 	OnFileNew();	//新建场景
 	JsonClass MyJson;
 	
-	MyJson.OpenJsonFile();
+	MyJson.OpenJsonFile();	//打开json文件，将数据加载到MyJson变量中
+	
+	for (int i = 0; i < MyJson.GetJsonCount(); i++)	//写入数据到存储数组里
+	{
+		CString type = MyJson.GetJsonStepType(i + 1).c_str();
+		if (type==_T("LINE"))
+		{
+		
+			CPoint p1 = MyJson.GetPoint(i + 1, 1);
+			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			COLORREF color = MyJson.GetColor(i + 1, 1);
+			this->SetLine(p1,p2,color,i);
+			currentStep++;	//绘制步骤+1
+			this->SetTreeDialog(currentStep, _T("绘制直线"));
+			
+		}
+			
+		else if (type == _T("CIRCLE"))
+		{
+			CPoint p1 = MyJson.GetPoint(i + 1, 1);
+			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			COLORREF color = MyJson.GetColor(i + 1, 1);
+			this->SetCircle(p1, p2, color, i);
+			currentStep++;	//绘制步骤+1
+			this->SetTreeDialog(currentStep, _T("绘制圆形"));
+		}
+		else if (type == _T("RECT"))
+		{
+			CPoint p1 = MyJson.GetPoint(i + 1, 1);
+			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			COLORREF color = MyJson.GetColor(i + 1, 1);
+			this->SetRect(p1, p2, color, i);
+			currentStep++;	//绘制步骤+1
+			this->SetTreeDialog(currentStep, _T("绘制矩形"));
+		}
+	}
+	Invalidate();
+	MessageBox(_T("打开文件成功"));
 	
 }
