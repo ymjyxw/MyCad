@@ -88,21 +88,25 @@ public:
 
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	bool beginTransform = false;	//记录当前是否进行移动
+	bool is_create_video = false;	//判断当前正在是否创建视频
+	int video_step = 0;	//保存当前视频绘制的步骤
+	CString video_path; //视频保存路径
 	
-
 	void DrawPoints(CDC *pDC);	//绘制点
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
 	void SetRect(CPoint p1, CPoint p2, COLORREF color, int s); //设置矩形
 	void SetCircle(CPoint p1,CPoint p2, COLORREF color, int s); //设置圆
 	void SetTreeDialog(int num, CString str);	//设置树状图
-	void HighObject(int step);
+	void HighObject(int step);	//高亮图形
+	void DrawStepPoints(CDC* pDC, int step);	//绘制某一步骤的图形
+	bool DeleteDirectory(CString  strDir); //删除视频缓存
 
 
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnExportImage();	//导出图片
-	afx_msg void OnExportVideo();	//导出绘制过程（导出场景）
+	
 	virtual BOOL PreTranslateMessage(MSG* pMsg);	//键盘事件
 	
 
@@ -111,6 +115,8 @@ public:
 	afx_msg void OnFileNew();
 	afx_msg void OnFileSave();
 	afx_msg void OnFileOpen();
+	afx_msg void OnTimer(UINT_PTR nIDEvent);
+	afx_msg void OnExportVideo();
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本

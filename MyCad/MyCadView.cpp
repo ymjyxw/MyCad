@@ -43,10 +43,12 @@ BEGIN_MESSAGE_MAP(CMyCadView, CView)
 //	ON_WM_KEYDOWN()
 
 //ON_WM_TIMER()
-ON_COMMAND(ID_32776, &CMyCadView::OnExportVideo)
+
 ON_COMMAND(ID_FILE_NEW, &CMyCadView::OnFileNew)
 ON_COMMAND(ID_FILE_SAVE, &CMyCadView::OnFileSave)
 ON_COMMAND(ID_FILE_OPEN, &CMyCadView::OnFileOpen)
+ON_WM_TIMER()
+ON_COMMAND(ID_32777, &CMyCadView::OnExportVideo)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -81,7 +83,9 @@ void CMyCadView::OnDraw(CDC* pDC)
 	if (!pDoc)
 		return;
 
-	// TODO: 在此处为本机数据添加绘制代码
+	if (is_create_video)
+		return;
+
 	DrawPoints(pDC); //绘制所有图形
 	
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetApp()->m_pMainWnd;
@@ -622,15 +626,7 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 }
 
 
-//导出视频
-void CMyCadView::OnExportVideo()	//导出文件
-{
-	// TODO: 在此添加命令处理程序代码
 
-	
-
-
-}
 
 
 
@@ -642,6 +638,8 @@ void CMyCadView::OnFileNew()
 	currentEditStep = -1;
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
 	pMainFrame->m_treeBoxView.m_treeDialog.DelAllTreeItem(); //删除树状图
+	
+	
 
 	Invalidate();
 }
@@ -735,4 +733,138 @@ void CMyCadView::OnFileOpen()
 	Invalidate();
 	MessageBox(_T("打开文件成功"));
 	
+}
+
+
+
+
+void CMyCadView::OnExportVideo()
+{
+	// TODO: 在此添加命令处理程序代码
+
+	// TODO: 在此添加命令处理程序代码
+	TCHAR szFilter[] = _T("视频文件(*.avi)|*.avi||");
+	//构造保存文件对话框   
+	CFileDialog fileDlg(FALSE, _T("avi"), _T("MyCad"), OFN_HIDEREADONLY | OFN_OVERWRITEPROMPT, szFilter, this);
+	
+	// 显示保存文件对话框   
+	if (IDOK == fileDlg.DoModal())
+	{
+		// 如果点击了文件对话框上的“保存”按钮，则将选择的文件路径显示到编辑框里   
+		video_path = fileDlg.GetPathName();
+	}
+	else
+		return;
+	//清空屏幕
+	is_create_video = true;
+	Invalidate();
+	
+	//逐步绘制图形
+	SetTimer(1, 500, NULL); //创建定时器，每隔0.5s执行一次
+
+
+	
+}
+
+
+void CMyCadView::OnTimer(UINT_PTR nIDEvent)
+{
+	// TODO: 在此添加消息处理程序代码和/或调用默认值
+	switch (nIDEvent)
+
+	{
+
+	case 1:
+		if (video_step == currentStep)
+		{
+			KillTimer(1);	//关闭定时器
+			video_step = 0; //重置
+			is_create_video = false;
+			system(_T("..\\..\\ffmpeg\\bin\\ffmpeg.exe -r 1 -i .\\temp\\%03d.jpg ")+video_path+_T(" -y"));
+			DeleteDirectory(_T(".\\temp"));
+			MessageBox(_T("导出视频成功"));
+			return;
+		}
+
+
+		CDC * pDC = GetDC();//初始化指针pDC
+
+		this->DrawStepPoints(pDC,video_step); //绘制第video_step图形
+
+		ReleaseDC(pDC);//释放指针
+		video_step++;
+		break;
+	
+	}
+
+	CView::OnTimer(nIDEvent);
+}
+
+// 绘制单步骤的点，并把该步骤图形保存成图片
+void CMyCadView::DrawStepPoints(CDC* pDC, int step)
+{
+
+	Points* p = &(stepPoints[step].point);	
+	while (p)
+	{
+		pDC->SetPixel(p->x, p->y, p->color);
+		p = p->next;
+	}
+	
+	CClientDC dc(this);
+	CRect rect;
+	GetClientRect(&rect);                  //获取画布大小
+	HBITMAP hbitmap = CreateCompatibleBitmap(dc, rect.right - rect.left, rect.bottom - rect.top);	//创建兼容位图
+	HDC hdc = CreateCompatibleDC(dc);      //创建兼容DC，以便将图像保存为不同的格式
+	HBITMAP hOldMap = (HBITMAP)SelectObject(hdc, hbitmap);	//将位图选入DC，并保存返回值 
+	BitBlt(hdc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, dc, 0, 0, SRCCOPY);	//将屏幕DC的图像复制到内存DC中
+
+	CImage image;
+	image.Attach(hbitmap);                //将位图转化为一般图像
+
+	/*CString path = _T("‪C:/Users/huangPeiXin/Desktop/temp/00.jpg");
+	CString strFileName = path;*/
+	CString tempPath;
+	tempPath.Format(".\\temp\\%03d.jpg", step);
+
+	HRESULT hResult = image.Save(tempPath);     //保存图像
+
+	
+	image.Detach();
+	SelectObject(hdc, hOldMap);
+}
+
+
+bool CMyCadView::DeleteDirectory(CString  strDir)
+{
+	if (strDir.IsEmpty())
+		return false;
+
+	//   首先删除文件及子文件夹     
+	CFileFind   ff;
+	BOOL   bFound = ff.FindFile(strDir + L"\\*", 0);
+	while (bFound)
+	{
+		bFound = ff.FindNextFile();
+		if (ff.GetFileName() == "." || ff.GetFileName() == "..")
+			continue;
+		//   去掉文件(夹)只读等属性     
+		SetFileAttributes(ff.GetFilePath(), FILE_ATTRIBUTE_NORMAL);
+		if (ff.IsDirectory())
+		{
+			//   递归删除子文件夹     
+			DeleteDirectory(ff.GetFilePath());
+			RemoveDirectory(ff.GetFilePath());
+		}
+		else
+		{
+			//   删除文件     
+			DeleteFile(ff.GetFilePath());
+		}
+	}
+	ff.Close();
+
+	//   然后删除该文件夹     
+	//RemoveDirectory(strDir);  
+	return true;
 }
