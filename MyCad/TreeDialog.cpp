@@ -5,8 +5,11 @@
 #include "MyCad.h"
 #include "TreeDialog.h"
 #include "afxdialogex.h"
-
+#include "MyCadView.h"
+#include "MainFrm.h"
 // TreeDialog 对话框
+
+
 
 IMPLEMENT_DYNAMIC(TreeDialog, CDialogEx)
 
@@ -56,6 +59,7 @@ void TreeDialog::DelAllTreeItem()
 	
 }
 
+
 int TreeDialog::ChangeStep()
 {
 	if (ItemCount == 0)	//还没创建子项目直接退出
@@ -84,6 +88,7 @@ int TreeDialog::ChangeStep()
 
 BEGIN_MESSAGE_MAP(TreeDialog, CDialogEx)
 	ON_NOTIFY(TVN_SELCHANGED, IDC_TREE1, &TreeDialog::OnTvnSelchangedTree1)
+	
 END_MESSAGE_MAP()
 
 
@@ -108,6 +113,25 @@ void TreeDialog::OnTvnSelchangedTree1(NMHDR *pNMHDR, LRESULT *pResult)
 	SetDlgItemText(IDC_EDIT1, strText);
 	tree_currentStep = ChangeStep();
 	
+	if (!isFirst)
+	{
+		isFirst = true;
+		return;
+	}
+
+	TRY
+	{
+		CMainFrame * p = (CMainFrame*)AfxGetApp()->m_pMainWnd;
+		CMyCadView* pv = (CMyCadView*)p->GetActiveView();
+		pv->currentEditStep = tree_currentStep;
+		pv->Invalidate();
+	}
+	CATCH(CNotSupportedException, e)
+	{
+		TRACE("窗口异常");
+	}
+	END_CATCH
+
 
 }
 
@@ -129,6 +153,8 @@ BOOL TreeDialog::OnInitDialog()
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE
 }
+
+
 
 
 

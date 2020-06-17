@@ -88,7 +88,7 @@ public:
 
 	CPoint beginPoint, endPoint;	//开始绘制点和结束绘制点
 	bool beginTransform = false;	//记录当前是否进行移动
-	CWinThread* pThread_highLight;	//高亮线程
+	
 
 	void DrawPoints(CDC *pDC);	//绘制点
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
@@ -97,14 +97,14 @@ public:
 	void SetTreeDialog(int num, CString str);	//设置树状图
 	void HighObject(int step);
 
+
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
 	afx_msg void OnMouseMove(UINT nFlags, CPoint point);
 	afx_msg void OnExportImage();	//导出图片
 	afx_msg void OnExportVideo();	//导出绘制过程（导出场景）
 	virtual BOOL PreTranslateMessage(MSG* pMsg);	//键盘事件
-	static UINT pThread_highLightFunc(LPVOID lpParam);	//线程启动函数，实时监控数据，移动时，对图形矩形高亮
-
+	
 
 
 

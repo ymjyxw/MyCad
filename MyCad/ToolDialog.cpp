@@ -5,8 +5,8 @@
 #include "MyCad.h"
 #include "ToolDialog.h"
 #include "afxdialogex.h"
-
-
+#include "MainFrm.h"
+#include "MyCadView.h"
 // ToolDialog 对话框
 
 IMPLEMENT_DYNAMIC(ToolDialog, CDialogEx)
@@ -34,6 +34,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON3, &ToolDialog::OnDrawCircle)
 	ON_BN_CLICKED(IDC_BUTTON4, &ToolDialog::OnRotateObject)
 	ON_BN_CLICKED(IDC_BUTTON5, &ToolDialog::OnDrawRect)
+
 END_MESSAGE_MAP()
 
 
@@ -52,7 +53,14 @@ void ToolDialog::OnDrawLine()	//点击画线按钮，实现画线功能
 void ToolDialog::OnMoveObject()
 {
 	// TODO: 在此添加控件通知处理程序代码
+	//普通类获取view类指针
+	
 	currentModel = MOVEOBJECT;
+
+	CMainFrame* p = (CMainFrame*)AfxGetApp()->m_pMainWnd;	//获取框架指针
+	CMyCadView* pv = (CMyCadView*)p->GetActiveView();	//获取view指针
+
+	pv->Invalidate(); 
 }
 
 
@@ -75,3 +83,4 @@ void ToolDialog::OnDrawRect()
 	// TODO: 在此添加控件通知处理程序代码
 	currentModel = DRAWRECT;
 }
+

@@ -24,14 +24,17 @@ public:
 	void SetTreeItem(CString str);
 	void DelTreeItem();//删除Item
 	void DelAllTreeItem();//删除所有Item
+
 private:
 	int ItemCount = 0; //当前绘制图形的数量
 	CTreeCtrl m_treeCtrl;	//定义树状图
 	HTREEITEM hRoot;     // 树的根节点的句柄   
 	HTREEITEM hCataItem[1000]; // 可表示任一分类节点的句柄   
-
+	bool isFirst=false;
 	afx_msg void OnTvnSelchangedTree1(NMHDR *pNMHDR, LRESULT *pResult);
 	virtual BOOL OnInitDialog();
 	int ChangeStep(); //改变当前图形
-
+	
+public:
+	
 };

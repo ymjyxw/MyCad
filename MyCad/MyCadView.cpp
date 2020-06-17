@@ -55,14 +55,12 @@ CMyCadView::CMyCadView() noexcept
 {
 	// TODO: 在此处添加构造代码
 	AllocConsole();//打开控制台
-	pThread_highLight = AfxBeginThread(pThread_highLightFunc, this);//创建线程并启动
-
-
+	
 }
 
 CMyCadView::~CMyCadView()
 {
-	pThread_highLight->Delete();	//线程终止
+	
 	FreeConsole();//释放控制台资源
 }
 
@@ -84,8 +82,11 @@ void CMyCadView::OnDraw(CDC* pDC)
 		return;
 
 	// TODO: 在此处为本机数据添加绘制代码
-	DrawPoints(pDC);
+	DrawPoints(pDC); //绘制所有图形
 	
+	CMainFrame* pMainFrame = (CMainFrame*)AfxGetApp()->m_pMainWnd;
+	if(currentEditStep>=0 && pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//高亮图形
+		HighObject(currentEditStep);
 
 
 }
@@ -200,6 +201,8 @@ void CMyCadView::HighObject(int step)
 	
 }
 
+
+
 void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -309,12 +312,12 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 		if (currentEditStep < 0)	//没有选中图形，直接退出
 		{
 
-			//MessageBox(_T("没有选择图形"));
+			
 			return;
 		}
 					
 
-	
+		
 		
 		if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
 		{
@@ -608,25 +611,6 @@ BOOL CMyCadView::PreTranslateMessage(MSG* pMsg)
 	return CView::PreTranslateMessage(pMsg);
 }
 
-//高亮线程
-UINT CMyCadView::pThread_highLightFunc(LPVOID lpParam)
-{
-	CMyCadView *p = (CMyCadView *)lpParam;
-	int select;
-	
-	while (true)
-	{
-
-		select = p->currentEditStep;	//获取选中的图形
-		if (select < 0)	//没有选中图形，继续循环
-			continue;
-	
-		p->HighObject(select);
-			
-	}
-
-	return 0;
-}
 
 
 
