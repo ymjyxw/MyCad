@@ -117,6 +117,7 @@ public:
 	afx_msg void OnFileOpen();
 	afx_msg void OnTimer(UINT_PTR nIDEvent);
 	afx_msg void OnExportVideo();
+	afx_msg void OnShowGLDialog();
 };
 
 #ifndef _DEBUG  // MyCadView.cpp 中的调试版本

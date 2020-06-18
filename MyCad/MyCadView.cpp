@@ -20,6 +20,7 @@
 #include "ToolDialog.h"
 #include "MyTransform.h"
 #include "JsonClass.h"
+#include "CreateGLDialog.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -49,6 +50,7 @@ ON_COMMAND(ID_FILE_SAVE, &CMyCadView::OnFileSave)
 ON_COMMAND(ID_FILE_OPEN, &CMyCadView::OnFileOpen)
 ON_WM_TIMER()
 ON_COMMAND(ID_32777, &CMyCadView::OnExportVideo)
+ON_COMMAND(ID_32778, &CMyCadView::OnShowGLDialog)
 END_MESSAGE_MAP()
 
 // CMyCadView 构造/析构
@@ -427,7 +429,7 @@ void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 
 
 }
-
+//设置矩形
 void CMyCadView::SetRect(CPoint p1, CPoint p2, COLORREF color, int s)
 {
 	DrawRect MyDrawRect;
@@ -478,6 +480,7 @@ void CMyCadView::SetRect(CPoint p1, CPoint p2, COLORREF color, int s)
 
 }
 
+//设置圆
 void CMyCadView::SetCircle(CPoint p1, CPoint p2, COLORREF color, int s)
 {
 	DrawCircle MyDrawCircle;
@@ -737,11 +740,10 @@ void CMyCadView::OnFileOpen()
 
 
 
-
+//导出视频
 void CMyCadView::OnExportVideo()
 {
-	// TODO: 在此添加命令处理程序代码
-
+	
 	// TODO: 在此添加命令处理程序代码
 	TCHAR szFilter[] = _T("视频文件(*.avi)|*.avi||");
 	//构造保存文件对话框   
@@ -766,7 +768,7 @@ void CMyCadView::OnExportVideo()
 	
 }
 
-
+//计时器
 void CMyCadView::OnTimer(UINT_PTR nIDEvent)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
@@ -834,7 +836,7 @@ void CMyCadView::DrawStepPoints(CDC* pDC, int step)
 	SelectObject(hdc, hOldMap);
 }
 
-
+//删除文件夹下所有文件
 bool CMyCadView::DeleteDirectory(CString  strDir)
 {
 	if (strDir.IsEmpty())
@@ -867,4 +869,13 @@ bool CMyCadView::DeleteDirectory(CString  strDir)
 	//   然后删除该文件夹     
 	//RemoveDirectory(strDir);  
 	return true;
+}
+
+
+//创建gl窗口
+void CMyCadView::OnShowGLDialog()
+{
+	// TODO: 在此添加命令处理程序代码
+	CreateGLDialog glDialog;
+	glDialog.DoModal();
 }
