@@ -31,6 +31,7 @@ void CreateGLDialog::DoDataExchange(CDataExchange* pDX)
 	DDX_Control(pDX, IDC_SLIDER1, slider_x);
 	DDX_Control(pDX, IDC_SLIDER2, slider_y);
 	DDX_Control(pDX, IDC_SLIDER3, slider_z);
+	DDX_Control(pDX, IDC_SLIDER4, slider_r);
 }
 
 
@@ -46,6 +47,7 @@ BEGIN_MESSAGE_MAP(CreateGLDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON8, &CreateGLDialog::OnCreateLineCube)
 	ON_BN_CLICKED(IDC_BUTTON9, &CreateGLDialog::OnCreateSphere)
 	ON_BN_CLICKED(IDC_BUTTON10, &CreateGLDialog::OnCreateLineSphere)
+	ON_BN_CLICKED(IDC_BUTTON7, &CreateGLDialog::OnExportImage)
 END_MESSAGE_MAP()
 
 
@@ -77,7 +79,8 @@ BOOL CreateGLDialog::OnInitDialog()
 	slider_y.SetRange(1, 5); //设置最大值与最小值
 	slider_z.SetPos(1); //设置默认值
 	slider_z.SetRange(1, 5); //设置最大值与最小值
-
+	slider_r.SetPos(1); //设置默认值
+	slider_r.SetRange(1, 5); //设置最大值与最小值
 	return TRUE;  // return TRUE unless you set the focus to a control
 				  // 异常: OCX 属性页应返回 FALSE
 }
@@ -113,7 +116,7 @@ void CreateGLDialog::OnChangeColor()
 void CreateGLDialog::OnCloseDialog()
 {
 	// TODO: 在此添加控件通知处理程序代码
-	m_oglWindow.scale_x += 1;
+	this->EndDialog(-1);
 }
 
 
@@ -129,6 +132,7 @@ void CreateGLDialog::OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar)
 	m_oglWindow.scale_x = slider_x.GetPos();
 	m_oglWindow.scale_y = slider_y.GetPos();
 	m_oglWindow.scale_z = slider_z.GetPos();
+	m_oglWindow.scale_r = slider_r.GetPos();
 	CDialogEx::OnHScroll(nSBCode, nPos, pScrollBar);
 }
 
@@ -158,4 +162,49 @@ void CreateGLDialog::OnCreateLineSphere()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	m_oglWindow.current_model = COpenGLControl::LINESPHERE;
+}
+
+//导出图片
+void CreateGLDialog::OnExportImage()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	CRect rect;
+	Open_Pic.GetWindowRect(rect);
+
+	//转换为屏幕坐标
+	ScreenToClient(rect);
+	
+	CClientDC dc(this);
+	
+	HBITMAP hbitmap = CreateCompatibleBitmap(dc, rect.right - rect.left, rect.bottom - rect.top);	//创建兼容位图
+	HDC hdc = CreateCompatibleDC(dc);      //创建兼容DC，以便将图像保存为不同的格式
+	HBITMAP hOldMap = (HBITMAP)SelectObject(hdc, hbitmap);	//将位图选入DC，并保存返回值 
+	BitBlt(hdc, 0, 0, rect.right - rect.left, rect.bottom - rect.top, dc, 0, 0, SRCCOPY);	//将屏幕DC的图像复制到内存DC中
+
+
+	CImage image;
+	image.Attach(hbitmap);                //将位图转化为一般图像
+
+	CString  strFilter = _T("图片文件(*.jpg)|*.jpg||");
+	CFileDialog dlg(FALSE, _T("jpg"), _T("MyCadGLImage"), NULL, strFilter);
+
+	if (dlg.DoModal() != IDOK)	//模态窗口显示
+		return;
+
+	CString strFileName;          //文件路径
+
+
+	strFileName = dlg.m_ofn.lpstrFile;
+
+
+	HRESULT hResult = image.Save(strFileName);     //保存图像
+
+	if (FAILED(hResult))
+		MessageBox(_T("保存图像文件失败！"));
+	else
+		MessageBox(_T("图像保存成功！"));
+
+	image.Detach();
+	SelectObject(hdc, hOldMap);
+
 }

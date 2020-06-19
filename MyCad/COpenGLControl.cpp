@@ -58,7 +58,7 @@ void COpenGLControl::oglInitialize(void)
 	//OPenGL基础设置
 
 	// 设置背景颜色
-	glClearColor(0.0f, 0.0f, 0.0f, 1.0f);
+	glClearColor(1.0f, 1.0f, 1.0f, 1.0f);
 	glClearDepth(1.0f);
 
 	
@@ -159,9 +159,10 @@ void COpenGLControl::oglDrawLineCube(void)
 	glEnd();
 }
 
+//绘制长方体
 void COpenGLControl::oglDrawCube(void)
 {
-	glPolygonMode(GL_FRONT_AND_BACK, GL_CULL_FACE);
+	glPolygonMode(GL_FRONT_AND_BACK,GL_FILL);
 	glPushMatrix();
 	//设置颜色
 	float r, g, b;
@@ -177,51 +178,90 @@ void COpenGLControl::oglDrawCube(void)
 
 	glBegin(GL_QUADS);    //顶面
 	glNormal3f(0.0f, 1.0f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.5f);
-	glVertex3f(0.5f, 0.5f, -0.5f);
-	glVertex3f(-0.5f, 0.5f, -0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f);
+	glVertex3f(scale_x, scale_y, scale_z);
+	glVertex3f(scale_x, scale_y, -scale_z);
+	glVertex3f(-scale_x, scale_y, -scale_z);
+	glVertex3f(-scale_x, scale_y, scale_z);
 	glEnd();
 	glBegin(GL_QUADS);    //底面
 	glNormal3f(0.0f, -1.0f, 0.0f);
-	glVertex3f(0.5f, -0.5f, 0.5f);
-	glVertex3f(-0.5f, -0.5f, 0.5f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(0.5f, -0.5f, -0.5f);
+	glVertex3f(scale_x, -scale_y, scale_z);
+	glVertex3f(-scale_x, -scale_y, scale_z);
+	glVertex3f(-scale_x, -scale_y, -scale_z);
+	glVertex3f(scale_x, -scale_y, -scale_z);
 	glEnd();
 	glBegin(GL_QUADS);    //前面
 	glNormal3f(0.0f, 0.0f, 1.0f);
-	glVertex3f(0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f, -0.5f, 0.5f);
-	glVertex3f(0.5f, -0.5f, 0.5f);
+	glVertex3f(scale_x, scale_y, scale_z);
+	glVertex3f(-scale_x, scale_y, scale_z);
+	glVertex3f(-scale_x, -scale_y, scale_z);
+	glVertex3f(scale_x, -scale_y, scale_z);
 	glEnd();
 	glBegin(GL_QUADS);    //背面
 	glNormal3f(0.0f, 0.0f, -1.0f);
-	glVertex3f(0.5f, 0.5f, -0.5f);
-	glVertex3f(0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, 0.5f, -0.5f);
+	glVertex3f(scale_x, scale_y, -scale_z);
+	glVertex3f(scale_x, -scale_y, -scale_z);
+	glVertex3f(-scale_x, -scale_y, -scale_z);
+	glVertex3f(-scale_x, scale_y, -scale_z);
 	glEnd();
 	glBegin(GL_QUADS);    //左面
 	glNormal3f(-1.0f, 0.0f, 0.0f);
-	glVertex3f(-0.5f, 0.5f, 0.5f);
-	glVertex3f(-0.5f, 0.5f, -0.5f);
-	glVertex3f(-0.5f, -0.5f, -0.5f);
-	glVertex3f(-0.5f, -0.5f, 0.5f);
+	glVertex3f(-scale_x, scale_y, scale_z);
+	glVertex3f(-scale_x, scale_y, -scale_z);
+	glVertex3f(-scale_x, -scale_y, -scale_z);
+	glVertex3f(-scale_x, -scale_y, scale_z);
 	glEnd();
 	glBegin(GL_QUADS);    //右面
 	glNormal3f(1.0f, 0.0f, 0.0f);
-	glVertex3f(0.5f, 0.5f, 0.5f);
-	glVertex3f(0.5f, -0.5f, 0.5f);
-	glVertex3f(0.5f, -0.5f, -0.5f);
-	glVertex3f(0.5f, 0.5f, -0.5f);
+	glVertex3f(scale_x, scale_y, scale_z);
+	glVertex3f(scale_x, -scale_y, scale_z);
+	glVertex3f(scale_x, -scale_y, -scale_z);
+	glVertex3f(scale_x, scale_y, -scale_z);
 	glEnd();
 	glPopMatrix();
 
 
 }
 
+//绘制线框球体
+void COpenGLControl::oglDrawLineSphere(void)
+{
+	float r, g, b;
+	r = GetRValue(color) / 255.0f;
+	g = GetGValue(color) / 255.0f;
+	b = GetBValue(color) / 255.0f;
+
+
+	ambientLight[0] = r;  //环境光
+	ambientLight[1] = g;  //环境光
+	ambientLight[2] = b;  //环境光
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight); //设置环境光分量
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+	GLUquadric *qobj = gluNewQuadric();
+
+	gluSphere(qobj, scale_r, 10, 10);
+}
+
+void COpenGLControl::oglDrawSphere(void)
+{
+
+	float r, g, b;
+	r = GetRValue(color) / 255.0f;
+	g = GetGValue(color) / 255.0f;
+	b = GetBValue(color) / 255.0f;
+
+
+	ambientLight[0] = r;  //环境光
+	ambientLight[1] = g;  //环境光
+	ambientLight[2] = b;  //环境光
+	glLightfv(GL_LIGHT0, GL_AMBIENT, ambientLight); //设置环境光分量
+
+	glPolygonMode(GL_FRONT_AND_BACK, GL_FILL);
+	GLUquadric* qobj = gluNewQuadric();
+
+	gluSphere(qobj, scale_r, 10, 10);
+}
 
 
 
@@ -294,15 +334,18 @@ void COpenGLControl::OnTimer(UINT_PTR nIDEvent)
 		else
 			glEnable(GL_CULL_FACE);      //不计算多边形背面
 
-		// 绘制场景
+
 		
 
 
 		if (current_model == LINECUBE)
 			oglDrawLineCube();
-		else if (current_model == CUBE)	
+		else if (current_model == CUBE)
 			oglDrawCube();
-		//oglDrawSphere();
+		else if(current_model == LINESPHERE)
+			oglDrawLineSphere();
+		else if(current_model == SPHERE)
+			oglDrawSphere();
 		//oglDrawFourFace();
 	   // GLUquadric *qobj = gluNewQuadric();
 

@@ -42,4 +42,6 @@ public:
 	afx_msg void OnCreateLineCube();
 	afx_msg void OnCreateSphere();
 	afx_msg void OnCreateLineSphere();
+	CSliderCtrl slider_r;
+	afx_msg void OnExportImage();
 };

@@ -69,7 +69,7 @@ public:
 		LINE,
 		RECT,
 		CIRCLE,
-		
+		FILLRECT
 	};
 
 
@@ -96,6 +96,7 @@ public:
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
 	void SetRect(CPoint p1, CPoint p2, COLORREF color, int s); //设置矩形
 	void SetCircle(CPoint p1,CPoint p2, COLORREF color, int s); //设置圆
+	void SetFillRect(CPoint p1, CPoint p2, COLORREF color, int s);//设置实心矩形
 	void SetTreeDialog(int num, CString str);	//设置树状图
 	void HighObject(int step);	//高亮图形
 	void DrawStepPoints(CDC* pDC, int step);	//绘制某一步骤的图形

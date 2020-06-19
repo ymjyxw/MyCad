@@ -36,6 +36,7 @@
 #define IDC_SLIDER1                     1019
 #define IDC_SLIDER2                     1020
 #define IDC_SLIDER3                     1021
+#define IDC_SLIDER4                     1022
 #define ID_Menu                         32771
 #define ID_Menu32772                    32772
 #define ID_Menu32773                    32773

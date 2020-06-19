@@ -193,6 +193,7 @@
     <ClInclude Include="COpenGLControl.h" />
     <ClInclude Include="CreateGLDialog.h" />
     <ClInclude Include="DrawCircle.h" />
+    <ClInclude Include="DrawFillRect.h" />
     <ClInclude Include="DrawLine.h" />
     <ClInclude Include="DrawRect.h" />
     <ClInclude Include="framework.h" />
@@ -223,6 +224,7 @@
     <ClCompile Include="COpenGLControl.cpp" />
     <ClCompile Include="CreateGLDialog.cpp" />
     <ClCompile Include="DrawCircle.cpp" />
+    <ClCompile Include="DrawFillRect.cpp" />
     <ClCompile Include="DrawLine.cpp" />
     <ClCompile Include="DrawRect.cpp" />
     <ClCompile Include="JsonClass.cpp" />

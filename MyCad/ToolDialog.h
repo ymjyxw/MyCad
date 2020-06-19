@@ -28,6 +28,9 @@ public:
 		DRAWCIRCLE,
 		DRAWRECT,
 
+		DRAWFILLRECT,
+
+
 		MOVEOBJECT,
 		ROTATEOBJECT,
 		SCALEOBJECT,
@@ -36,6 +39,7 @@ public:
 	};
 	EditModel currentModel = DRAWLINE;	//默认为画线操作
 	COLORREF currentColor = RGB(0, 0, 0);	//当前选择颜色，默认黑色
+
 public:
 	
 
@@ -47,4 +51,5 @@ public:
 	afx_msg void OnRotateObject();
 	afx_msg void OnDrawRect();
 
+	afx_msg void OnCreateFillRect();
 };

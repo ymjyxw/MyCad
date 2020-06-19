@@ -99,6 +99,9 @@
     <ClInclude Include="COpenGLControl.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="DrawFillRect.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyCad.cpp">
@@ -150,6 +153,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="COpenGLControl.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="DrawFillRect.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

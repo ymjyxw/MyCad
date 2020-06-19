@@ -80,7 +80,7 @@ public:
     float scale_x = 1.0f;  //模型大小
     float scale_y = 1.0f;  //模型大小
     float scale_z = 1.0f;  //模型大小
-
+    float scale_r = 1.0f;  //模型大小
     COLORREF color = RGB(0,100,200); //模型颜色
     bool showBackFace = true; //默认不开启背面消隐
 
@@ -88,9 +88,9 @@ public:
     void oglCreate(CRect rect, CWnd* parent);   //创建OpenGL窗口
     void oglInitialize(void);   //初始化OpenGL
     void oglDrawLineCube(void); //绘制线框长方体
-    void oglDrawCube(void);
-    /*   void oglDrawLineSphere(void);
-    void oglDrawSphere(void);*/
+    void oglDrawCube(void); //创建长方体
+    void oglDrawLineSphere(void); //创建线框球体
+    void oglDrawSphere(void); //创建球体
 
 
    

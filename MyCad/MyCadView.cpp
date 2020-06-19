@@ -16,11 +16,13 @@
 #include "DrawLine.h"
 #include "DrawRect.h"
 #include "DrawCircle.h"
+#include "DrawFillRect.h"
 #include "MainFrm.h"
 #include "ToolDialog.h"
 #include "MyTransform.h"
 #include "JsonClass.h"
 #include "CreateGLDialog.h"
+
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -142,6 +144,7 @@ void CMyCadView::DrawPoints(CDC *pDC)
 		Points  *p = &(stepPoints[i].point);
 		while (p)
 		{
+		
 			pDC->SetPixel(p->x, p->y, p->color);
 			p = p->next;
 		}
@@ -229,9 +232,15 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT)	//移动事件
 	{
 		beginTransform = true;
+		
+		
 	}
 
 	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWRECT)	//画矩形事件
+	{
+		beginPoint = point;
+	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWFILLRECT) //画实心矩形
 	{
 		beginPoint = point;
 	}
@@ -259,7 +268,7 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		
 		this->SetLine(beginPoint, endPoint, color,currentStep);
 
-		Invalidate();
+		Invalidate(false);
 
 		beginPoint = CPoint(0, 0);	//重置点
 		endPoint = CPoint(0, 0);
@@ -275,7 +284,7 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 
 		this->SetRect(beginPoint, endPoint, color, currentStep);
 
-		Invalidate();
+		Invalidate(false);
 
 		beginPoint = CPoint(0, 0);	//重置点
 		endPoint = CPoint(0, 0);
@@ -289,7 +298,7 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		this->SetCircle(beginPoint, endPoint, color, currentStep);
 
-		Invalidate();
+		Invalidate(false);
 
 		beginPoint = CPoint(0, 0);	//重置点
 		endPoint = CPoint(0, 0);
@@ -302,6 +311,22 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		beginTransform = false;
 	}
+
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWFILLRECT)	//绘制实心矩形
+	{
+		this->SetFillRect(beginPoint, endPoint, color, currentStep);
+
+		Invalidate(false);
+
+		beginPoint = CPoint(0, 0);	//重置点
+		endPoint = CPoint(0, 0);
+
+		currentStep++;	//绘制步骤+1
+
+		this->SetTreeDialog(currentStep, _T("绘制实心矩形"));
+	}
+
+
 
 	CView::OnLButtonUp(nFlags, point);
 }
@@ -374,6 +399,21 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
 
 			this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+
+		}
+		else if(editSteps[currentEditStep].type == FILLRECT)	//移动的对象是实心矩形
+		{
+			COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+			CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+			int dx = point.x - editSteps[currentEditStep].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[currentEditStep].centerPoint.y;
+
+			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
+			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
+
+			this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
 
 		}
 
@@ -513,6 +553,51 @@ void CMyCadView::SetCircle(CPoint p1, CPoint p2, COLORREF color, int s)
 	newPoint->y = p2.y;
 	newPoint->color = color;
 	newPoint->next = NULL;
+}
+
+
+//设置实心矩形
+void CMyCadView::SetFillRect(CPoint p1, CPoint p2, COLORREF color, int s)
+{
+	DrawFillRect MyDrawFillRect;
+	MyDrawFillRect.DrawRectFunc(p1.x, p1.y, p2.x, p2.y, color);	//获取实心矩形的所有点，存储到MyDrawFillRect对象的stepPoint链表里面
+
+	DrawFillRect::pStepPoint p = MyDrawFillRect.stepPoint;	//获取DrawFillRect的像素点的头结点
+
+	stepPoints[s].step = s;	//写入操作步骤
+	Points* q = &(stepPoints[s].point);	//获取表头结点
+
+
+
+	while (p)	//写入像素点数据
+	{
+
+		q->x = p->x;
+		q->y = p->y;
+		q->color = p->color;
+		Points* nq = new Points;
+		nq->next = NULL;
+		q->next = nq;
+		q = q->next;
+		p = p->next;
+	}
+
+
+
+	//保存操作记录
+	editSteps[s].type = FILLRECT; //绘制的是实心矩形
+	editSteps[s].centerPoint = CPoint((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);//中心点
+	editSteps[s].point.x = p1.x;	//写入关键点数据
+	editSteps[s].point.y = p1.y;
+	editSteps[s].point.color = color;
+	Points* newPoint = new Points;
+	editSteps[s].point.next = newPoint;
+	newPoint->x = p2.x;	//写入关键点数据
+	newPoint->y = p2.y;
+	newPoint->color = color;
+	newPoint->next = NULL;
+
+
 }
 
 
