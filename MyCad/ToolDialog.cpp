@@ -35,6 +35,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON4, &ToolDialog::OnRotateObject)
 	ON_BN_CLICKED(IDC_BUTTON5, &ToolDialog::OnDrawRect)
 
+	ON_BN_CLICKED(IDC_BUTTON6, &ToolDialog::OnCreateFillRect)
 END_MESSAGE_MAP()
 
 
@@ -84,3 +85,10 @@ void ToolDialog::OnDrawRect()
 	currentModel = DRAWRECT;
 }
 
+
+
+void ToolDialog::OnCreateFillRect()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = DRAWFILLRECT;
+}

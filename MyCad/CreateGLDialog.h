@@ -1,6 +1,6 @@
 ﻿#pragma once
 #include "COpenGLControl.h"
-
+#include "COpenGLControl.h"
 // CreateGLDialog 对话框
 
 class CreateGLDialog : public CDialogEx
@@ -26,4 +26,20 @@ protected:
 public:
 	virtual BOOL OnInitDialog();
 	CStatic Open_Pic;	//OpenGL窗口
+	afx_msg void OnShowBackFace();
+	afx_msg void OnChangeColor();
+	
+	
+
+	afx_msg void OnCloseDialog();
+
+	
+	afx_msg void OnHScroll(UINT nSBCode, UINT nPos, CScrollBar* pScrollBar);
+	CSliderCtrl slider_x;
+	CSliderCtrl slider_y;
+	CSliderCtrl slider_z;
+	afx_msg void OnCreateCube();
+	afx_msg void OnCreateLineCube();
+	afx_msg void OnCreateSphere();
+	afx_msg void OnCreateLineSphere();
 };

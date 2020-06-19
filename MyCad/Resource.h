@@ -22,6 +22,7 @@
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON7                     1002
+#define IDC_BUTTON11                    1003
 #define IDC_TREE1                       1004
 #define IDC_EDIT1                       1008
 #define IDC_BUTTON3                     1012
