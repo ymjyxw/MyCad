@@ -16,6 +16,20 @@ CPoint MyTransform::myglTranslatef(float x, float y, CPoint * point)
 	return CPoint(P.x, P.y);
 }
 
+CPoint MyTransform::myglRotatef(float angle,int x,int y, CPoint* point)
+{
+	PointMatrix P;
+	P.x = point->x;
+	P.y = point->y;
+	P.z = 1;
+
+	MATRIX* rotate_matrix = new MATRIX;
+	InitRotateMatrix(angle, x, y, rotate_matrix);
+	MatrixMultipy(&P, rotate_matrix);
+
+	return CPoint(P.x, P.y);
+}
+
 void MyTransform::InitTranslateMatrix(float x, float y, MATRIX * matrix)
 {
 	matrix->x2 = matrix->x3 = matrix->y1 = matrix->y3 = 0;
@@ -35,5 +49,16 @@ void MyTransform::MatrixMultipy(PointMatrix * point, MATRIX * matrix)
 	point->x = int(x*matrix->x1 + y * matrix->y1 + z * matrix->z1 + 0.5);
 	point->y = int(x*matrix->x2 + y * matrix->y2 + z * matrix->z2 + 0.5);
 	point->z = int(x*matrix->x3 + y * matrix->y3 + z * matrix->z3 + 0.5);
+
+}
+
+void MyTransform::InitRotateMatrix(float angle, float x, float y, MATRIX* matrix)
+{
+	matrix->x1 = matrix->y2 = cos(angle);
+	matrix->x2 = sin(angle);
+	matrix->y1 = sin(angle) * (-1);
+	matrix->x3 = matrix->y3 = matrix->z1 = matrix->z2 = 0;
+	matrix->z3 = 1;
+
 
 }

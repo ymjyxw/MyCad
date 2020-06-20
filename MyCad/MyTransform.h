@@ -20,11 +20,11 @@ private:
 
 	static void InitTranslateMatrix(float x, float y, MATRIX * matrix);	//初始化位移矩阵
 	static void MatrixMultipy(PointMatrix * point, MATRIX * matrix);	//矩阵乘变换矩阵
-
+	static void InitRotateMatrix(float angle, float x,float y, MATRIX* matrix);
 
 
 public:
 	static CPoint myglTranslatef(float x, float y, CPoint * point); //位移函数,传入位移值与位移点，返回位移点
-
+	static CPoint myglRotatef(float angle, int x, int y, CPoint* point);//旋转函数,传入旋转中心点，位移值与位移点，返回位移点
 };
 

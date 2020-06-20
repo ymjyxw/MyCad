@@ -52,4 +52,7 @@ public:
 	afx_msg void OnDrawRect();
 
 	afx_msg void OnCreateFillRect();
+	afx_msg void OnSetColor();
+	
+	afx_msg void OnPaint();
 };

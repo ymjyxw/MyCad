@@ -761,6 +761,8 @@ void CMyCadView::OnFileSave()
 				MyJson.SetJsonCircleStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			else if (p.type == RECT)
 				MyJson.SetJsonRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			else if (p.type == FILLRECT)
+				MyJson.SetJsonFillRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			i++;
 		}
 
@@ -817,6 +819,16 @@ void CMyCadView::OnFileOpen()
 			currentStep++;	//绘制步骤+1
 			this->SetTreeDialog(currentStep, _T("绘制矩形"));
 		}
+		else if (type == _T("FILLRECT"))
+		{
+			CPoint p1 = MyJson.GetPoint(i + 1, 1);
+			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			COLORREF color = MyJson.GetColor(i + 1, 1);
+			this->SetFillRect(p1, p2, color, i);
+			currentStep++;	//绘制步骤+1
+			this->SetTreeDialog(currentStep, _T("绘制实心矩形"));
+		}
+
 	}
 	Invalidate();
 	MessageBox(_T("打开文件成功"));
@@ -957,10 +969,83 @@ bool CMyCadView::DeleteDirectory(CString  strDir)
 }
 
 
+
 //创建gl窗口
 void CMyCadView::OnShowGLDialog()
 {
 	// TODO: 在此添加命令处理程序代码
 	CreateGLDialog glDialog;
 	glDialog.DoModal();
+}
+
+
+//显示旋转对话框
+void CMyCadView::RotateObject()
+{
+	//MessageBox(_T("显示旋转对话框"));
+
+	float angle;
+	//Todo:弹出对话框，输入旋转数据，然后获取
+
+	//CtrPsDialog dlg = new CtrPsDialog;
+	//dlg.DoModal();
+	//angle = dlg.num1;
+	angle = 45.0f;
+
+	//Todo:获取当前修改的图形
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+
+	//当前只修改这一步骤下的图形
+	currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
+	if (currentEditStep < 0)	//没有选中图形，直接退出
+		return;
+
+	//editSteps[currentEditStep] //要修改的图形
+
+	//Todo:旋转
+	if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);	//位移关键点
+		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);
+		//Todo:重新写入数据
+		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
+
+	}
+
+	else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);	//位移关键点
+		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);
+		//Todo:重新写入数据
+		this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
+
+	}
+	else if (editSteps[currentEditStep].type == RECT)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);	//位移关键点
+		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);
+		//Todo:重新写入数据
+		this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+
+	}
+
+	//Todo:刷新屏幕
+	Invalidate();
+
+
 }

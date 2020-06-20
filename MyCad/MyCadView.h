@@ -102,6 +102,9 @@ public:
 	void DrawStepPoints(CDC* pDC, int step);	//绘制某一步骤的图形
 	bool DeleteDirectory(CString  strDir); //删除视频缓存
 
+	void RotateObject();	//旋转函数
+
+
 
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);
 	afx_msg void OnLButtonUp(UINT nFlags, CPoint point);
