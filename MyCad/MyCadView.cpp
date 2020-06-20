@@ -17,6 +17,7 @@
 #include "DrawRect.h"
 #include "DrawCircle.h"
 #include "DrawFillRect.h"
+#include "DrawFillCircle.h"
 #include "MainFrm.h"
 #include "ToolDialog.h"
 #include "MyTransform.h"
@@ -244,6 +245,10 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		beginPoint = point;
 	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWFILLCIRCLE) //画实心圆形
+	{
+		beginPoint = point;
+	}
 
 	CView::OnLButtonDown(nFlags, point);
 
@@ -324,6 +329,19 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		currentStep++;	//绘制步骤+1
 
 		this->SetTreeDialog(currentStep, _T("绘制实心矩形"));
+	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWFILLCIRCLE)	//绘制实心矩形
+	{
+		this->SetFillCircle(beginPoint, endPoint, color, currentStep);
+
+		Invalidate(false);
+
+		beginPoint = CPoint(0, 0);	//重置点
+		endPoint = CPoint(0, 0);
+
+		currentStep++;	//绘制步骤+1
+
+		this->SetTreeDialog(currentStep, _T("绘制实心圆形"));
 	}
 
 
@@ -416,7 +434,21 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 			this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
 
 		}
+		else if (editSteps[currentEditStep].type == FILLCIRCLE)	//移动的对象是实心矩形
+		{
+			COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+			CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
+			int dx = point.x - editSteps[currentEditStep].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[currentEditStep].centerPoint.y;
+
+			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
+			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
+
+			this->SetFillCircle(p1, p2, color, currentEditStep);	//重新绘制
+
+		}
 
 		Invalidate();
 		
@@ -600,6 +632,48 @@ void CMyCadView::SetFillRect(CPoint p1, CPoint p2, COLORREF color, int s)
 
 }
 
+//绘制实心圆
+void CMyCadView::SetFillCircle(CPoint p1, CPoint p2, COLORREF color, int s)
+{
+	DrawFillCircle MyDrawFillCircle;
+	MyDrawFillCircle.drawFillCircle(p1.x, p1.y, p2.x, p2.y, color);	//获取实心矩形的所有点，存储到MyDrawFillRect对象的stepPoint链表里面
+
+	DrawFillCircle::pStepPoint p = MyDrawFillCircle.stepPoint;	//获取DrawFillRect的像素点的头结点
+
+	stepPoints[s].step = s;	//写入操作步骤
+	Points* q = &(stepPoints[s].point);	//获取表头结点
+
+
+
+	while (p)	//写入像素点数据
+	{
+
+		q->x = p->x;
+		q->y = p->y;
+		q->color = p->color;
+		Points* nq = new Points;
+		nq->next = NULL;
+		q->next = nq;
+		q = q->next;
+		p = p->next;
+	}
+
+
+
+	//保存操作记录
+	editSteps[s].type = FILLCIRCLE; //绘制的是实心矩形
+	editSteps[s].centerPoint = p1;//中心点
+	editSteps[s].point.x = p1.x;	//写入关键点数据
+	editSteps[s].point.y = p1.y;
+	editSteps[s].point.color = color;
+	Points* newPoint = new Points;
+	editSteps[s].point.next = newPoint;
+	newPoint->x = p2.x;	//写入关键点数据
+	newPoint->y = p2.y;
+	newPoint->color = color;
+	newPoint->next = NULL;
+}
+
 
 // 导出图片
 void CMyCadView::OnExportImage()
@@ -763,6 +837,8 @@ void CMyCadView::OnFileSave()
 				MyJson.SetJsonRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			else if (p.type == FILLRECT)
 				MyJson.SetJsonFillRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			else if (p.type == FILLCIRCLE)
+				MyJson.SetJsonFillCircleStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			i++;
 		}
 
@@ -828,7 +904,15 @@ void CMyCadView::OnFileOpen()
 			currentStep++;	//绘制步骤+1
 			this->SetTreeDialog(currentStep, _T("绘制实心矩形"));
 		}
-
+		else if (type == _T("FILLCIRCLE"))
+		{
+			CPoint p1 = MyJson.GetPoint(i + 1, 1);
+			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			COLORREF color = MyJson.GetColor(i + 1, 1);
+			this->SetFillCircle(p1, p2, color, i);
+			currentStep++;	//绘制步骤+1
+			this->SetTreeDialog(currentStep, _T("绘制实心圆形"));
+		}
 	}
 	Invalidate();
 	MessageBox(_T("打开文件成功"));

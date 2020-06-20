@@ -29,7 +29,7 @@ public:
 		DRAWRECT,
 
 		DRAWFILLRECT,
-
+		DRAWFILLCIRCLE,
 
 		MOVEOBJECT,
 		ROTATEOBJECT,
@@ -55,4 +55,5 @@ public:
 	afx_msg void OnSetColor();
 	
 	afx_msg void OnPaint();
+	afx_msg void OnDrawFillCircle();
 };

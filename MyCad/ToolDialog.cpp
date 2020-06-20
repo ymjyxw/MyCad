@@ -39,6 +39,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON6, &ToolDialog::OnCreateFillRect)
 	ON_BN_CLICKED(IDC_BUTTON7, &ToolDialog::OnSetColor)
 	ON_WM_PAINT()
+	ON_BN_CLICKED(IDC_BUTTON8, &ToolDialog::OnDrawFillCircle)
 END_MESSAGE_MAP()
 
 
@@ -151,4 +152,11 @@ void ToolDialog::OnPaint()
 
 
 
+}
+
+
+void ToolDialog::OnDrawFillCircle()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = DRAWFILLCIRCLE;
 }
