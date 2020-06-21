@@ -220,24 +220,51 @@ void CMyCadView::SetTreeDialog(int num, CString str)
 void CMyCadView::HighObject(int step)
 {
 	
-	CDC * pDC = GetDC();//初始化指针pDC
-	
+	//CDC * pDC = GetDC();//初始化指针pDC
+	//
 	CPoint cp = editSteps[step].centerPoint;
-	CPoint ld = cp - CPoint(10, 10);
-	CPoint rt = cp + CPoint(10, 10);
+	//CPoint ld = cp - CPoint(10, 10);
+	//CPoint rt = cp + CPoint(10, 10);
 
-	CBrush NewBrush, *pOldBrush;
-	NewBrush.CreateSolidBrush(RGB(255, 0, 0));
-	pOldBrush = pDC->SelectObject(&NewBrush);
-	pDC->Ellipse(CRect(ld, rt));
-	pDC->MoveTo(cp);
+	//CBrush NewBrush, *pOldBrush;
+	//NewBrush.CreateSolidBrush(RGB(255, 0, 0));
+	//pOldBrush = pDC->SelectObject(&NewBrush);
+	//pDC->Ellipse(CRect(ld, rt));
+	//pDC->MoveTo(cp);
 
-	pDC->LineTo(CPoint(cp.x + 20, cp.y));
+	//pDC->LineTo(CPoint(cp.x + 20, cp.y));
 
-	pDC->SelectObject(pOldBrush);
-	NewBrush.DeleteObject();
-	ReleaseDC(pDC);//释放指针
-	
+	//pDC->SelectObject(pOldBrush);
+	//NewBrush.DeleteObject();
+	//ReleaseDC(pDC);//释放指针
+	CImage* m_pImgBk = new CImage;
+	m_pImgBk->Load(_T("res\\zuobiaozhou.png"));
+	if (m_pImgBk->IsNull()) // 图片加载失败
+	{
+		delete m_pImgBk;
+		m_pImgBk = NULL;
+		return;
+	}
+	if (m_pImgBk->GetBPP() == 32)
+	{
+		for (int i = 0; i < m_pImgBk->GetWidth(); i++)
+		{
+			for (int j = 0; j < m_pImgBk->GetHeight(); j++)
+			{
+				unsigned char* pucColor = reinterpret_cast<unsigned char*>(m_pImgBk->GetPixelAddress(i, j));
+				pucColor[0] = pucColor[0] * pucColor[3] / 255;
+				pucColor[1] = pucColor[1] * pucColor[3] / 255;
+				pucColor[2] = pucColor[2] * pucColor[3] / 255;
+			}
+		}
+	}
+	CWindowDC dc(this);
+	if (m_pImgBk != NULL)
+	{
+		int nDstWidth = 143;
+		int nDstHeight = 231;
+		m_pImgBk->Draw(dc.GetSafeHdc(), cp.x-7, cp.y-154, nDstWidth, nDstHeight);
+	}
 }
 
 

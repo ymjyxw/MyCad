@@ -4,7 +4,9 @@
 #include "MyCadDoc.h"
 #include <conio.h>
 #include<string>
-using namespace std;     
+using namespace std; 
+
+
 #pragma once
 #define MAXEDITNUM 1000;
 
