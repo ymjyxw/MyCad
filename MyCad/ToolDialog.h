@@ -60,4 +60,5 @@ public:
 	afx_msg void OnDrawFillCircle();
 	afx_msg void OnDrawBezier();
 	afx_msg void OnDrawYuanHu();
+	afx_msg void OnScale();
 };

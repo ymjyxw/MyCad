@@ -25,7 +25,7 @@
 #include "JsonClass.h"
 #include "CreateGLDialog.h"
 #include "RotateDialog.h"
-
+#include "ScaleDialog.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -230,6 +230,10 @@ void CMyCadView::HighObject(int step)
 	NewBrush.CreateSolidBrush(RGB(255, 0, 0));
 	pOldBrush = pDC->SelectObject(&NewBrush);
 	pDC->Ellipse(CRect(ld, rt));
+	pDC->MoveTo(cp);
+
+	pDC->LineTo(CPoint(cp.x + 20, cp.y));
+
 	pDC->SelectObject(pOldBrush);
 	NewBrush.DeleteObject();
 	ReleaseDC(pDC);//释放指针
@@ -1544,72 +1548,127 @@ void CMyCadView::RotateObject()
 //缩放
 void CMyCadView::ScaleObject()
 {
-	//float x, y;
-	//ScaleDialog dlg = new ScaleDialog;
-	//dlg.DoModal();
-	//x = dlg.ScaleX;//关于旋转x坐标
-	//y = dlg.ScaleY;//关于旋转y坐标
-//
-//	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
-////当前只修改这一步骤下的图形
-//	currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
-//	if (currentEditStep < 0)	//没有选中图形，直接退出
-//		return;
-//
-//	if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
-//	{
-//		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
-//
-//		CPoint pc = editSteps[currentEditStep].centerPoint;
-//		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
-//		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
-//
-//		p1 = MyTransform::myglScalef(3, 3, pc, &p1);
-//		p2 = MyTransform::myglScalef(3, 3, pc, &p2);
-//
-//		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
-//	}
-	//else if (editSteps[currentEditStep].type == FILLRECT)	//移动的对象是填充矩形
-	//{
-	//	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+	float x, y;
+	ScaleDialog dlg = new ScaleDialog;
+	dlg.DoModal();
+	if (!dlg.IsScale)
+		return;
+	x = dlg.ScaleX;//关于旋转x坐标
+	y = dlg.ScaleY;//关于旋转y坐标
 
-	//	CPoint pc = editSteps[currentEditStep].centerPoint;
+	if (x == 0)
+		x = 1;
+	if (y== 0)
+		y = 1;
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+//当前只修改这一步骤下的图形
+	currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
+	if (currentEditStep < 0)	//没有选中图形，直接退出
+		return;
 
-	//	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
-	//	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+	if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
 
-	//	p1 = MyTransform::myglScalef(x, y, &p1);//缩放关键点
-	//	p2 = MyTransform::myglScalef(x, y, &p2);
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
-	//	this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
-	//}
-	//else if (editSteps[currentEditStep].type == RECT)	//移动的对象是矩形
-	//{
-	//	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+		p1 = MyTransform::myglScalef(3, 3, pc, &p1);
+		p2 = MyTransform::myglScalef(3, 3, pc, &p2);
 
-	//	CPoint pc = editSteps[currentEditStep].centerPoint;
+		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == RECT)	//移动的对象是填充矩形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
 
-	//	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
-	//	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		CPoint pc = editSteps[currentEditStep].centerPoint;
 
-	//	p1 = MyTransform::myglScalef(x, y, &p1);//缩放关键点
-	//	p2 = MyTransform::myglScalef(x, y, &p2);
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
-	//	this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
-	//}
-	//else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是圆形
-	//{
-	//	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+		p1 = MyTransform::myglScalef(x, y,pc, &p1);//缩放关键点
+		p2 = MyTransform::myglScalef(x, y,pc, &p2);
 
-	//	CPoint pc = editSteps[currentEditStep].centerPoint;
+		this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == FILLRECT)	//移动的对象是矩形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
 
-	//	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
-	//	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		CPoint pc = editSteps[currentEditStep].centerPoint;
 
-	//	p1 = MyTransform::myglScalef(x, y, &p1);//缩放关键点
-	//	p2 = MyTransform::myglScalef(x, y, &p2);
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
-	//	this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
-	//}
+		p1 = MyTransform::myglScalef(x, y,pc, &p1);//缩放关键点
+		p2 = MyTransform::myglScalef(x, y,pc, &p2);
+
+		this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglScalef(x, y,pc, &p1);//缩放关键点
+		p2 = MyTransform::myglScalef(x, y,pc, &p2);
+
+		this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == BEZIER)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglScalef(x, y, pc, &p1);//缩放关键点
+		p2 = MyTransform::myglScalef(x, y, pc, &p2);
+
+		this->SetBezier(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == FILLCIRCLE)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglScalef(x, y, pc, &p1);//缩放关键点
+		p2 = MyTransform::myglScalef(x, y, pc, &p2);
+
+		this->SetFillCircle(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == ROUNDCIRCLE)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+		CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
+
+
+		
+		p1 = MyTransform::myglScalef(x,y,pc, &p1);//位移关键点
+		p2 = MyTransform::myglScalef(x,y,pc, &p2);//位移关键点
+		p3 = MyTransform::myglScalef(x,y,pc, &p3);//位移关键点
+		p4 = MyTransform::myglScalef(x,y,pc, &p4);//位移关键点
+		
+		this->SetRoundCircle(p1, p2, p3, p4, color, currentEditStep);	//重新绘制
+	}
 	Invalidate();
 }

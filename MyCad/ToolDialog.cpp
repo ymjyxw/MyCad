@@ -42,6 +42,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON8, &ToolDialog::OnDrawFillCircle)
 	ON_BN_CLICKED(IDC_BUTTON9, &ToolDialog::OnDrawBezier)
 	ON_BN_CLICKED(IDC_BUTTON11, &ToolDialog::OnDrawYuanHu)
+	ON_BN_CLICKED(IDC_BUTTON13, &ToolDialog::OnScale)
 END_MESSAGE_MAP()
 
 
@@ -176,4 +177,15 @@ void ToolDialog::OnDrawYuanHu()
 {
 	// TODO: 在此添加控件通知处理程序代码
 	currentModel = DRAWYUANHU;
+}
+
+
+void ToolDialog::OnScale()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = SCALEOBJECT;
+	CMainFrame* p = (CMainFrame*)AfxGetApp()->m_pMainWnd;	//获取框架指针
+	CMyCadView* pv = (CMyCadView*)p->GetActiveView();	//获取view指针
+
+	pv->ScaleObject();
 }
