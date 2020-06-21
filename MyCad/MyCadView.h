@@ -72,6 +72,7 @@ public:
 		BEZIER,
 		FILLRECT,
 		FILLCIRCLE,
+		ROUNDCIRCLE
 	};
 
 
@@ -94,13 +95,20 @@ public:
 	int video_step = 0;	//保存当前视频绘制的步骤
 	CString video_path; //视频保存路径
 	
+	int twop = 0;
+	int ing = 0;
+	CPoint beginPoint2, beginPoint3;
+
+
 	void DrawPoints(CDC *pDC);	//绘制点
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
 	void SetRect(CPoint p1, CPoint p2, COLORREF color, int s); //设置矩形
 	void SetCircle(CPoint p1,CPoint p2, COLORREF color, int s); //设置圆
 	void SetFillRect(CPoint p1, CPoint p2, COLORREF color, int s);//设置实心矩形
 	void SetFillCircle(CPoint p1, CPoint p2, COLORREF color, int s);//设置实心圆形
-	void SetBezier(CPoint p1, CPoint p2, COLORREF color, int s);
+
+	void SetBezier(CPoint p1, CPoint p2, COLORREF color, int s); //贝塞尔
+	void SetRoundCircle(CPoint x1, CPoint p1, CPoint p2, CPoint p3, COLORREF color, int s); //圆弧
 	void SetTreeDialog(int num, CString str);	//设置树状图
 	void HighObject(int step);	//高亮图形
 	void DrawStepPoints(CDC* pDC, int step);	//绘制某一步骤的图形
@@ -108,6 +116,8 @@ public:
 
 	void RotateObject();	//旋转函数
 
+
+	
 
 
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

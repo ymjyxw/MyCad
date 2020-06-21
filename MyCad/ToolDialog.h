@@ -28,6 +28,7 @@ public:
 		DRAWCIRCLE,
 		DRAWRECT,
 		DRAWBEZIER,
+		DRAWYUANHU,
 
 		DRAWFILLRECT,
 		DRAWFILLCIRCLE,
@@ -58,4 +59,5 @@ public:
 	afx_msg void OnPaint();
 	afx_msg void OnDrawFillCircle();
 	afx_msg void OnDrawBezier();
+	afx_msg void OnDrawYuanHu();
 };

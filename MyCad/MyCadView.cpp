@@ -92,7 +92,29 @@ void CMyCadView::OnDraw(CDC* pDC)
 	if (is_create_video)
 		return;
 
-	DrawPoints(pDC); //绘制所有图形
+	//蜜汁双缓存
+	CDC MemDC; //首先定义一个显示设备对象
+	CBitmap MemBitmap;//定义一个位图对象
+	//随后建立与屏幕显示兼容的内存显示设备
+	MemDC.CreateCompatibleDC(NULL);
+	//这时还不能绘图，因为没有地方画 ^_^
+	//下面建立一个与屏幕显示兼容的位图，至于位图的大小嘛，可以用窗口的大小
+	CRect  rcClient;
+	GetClientRect(&rcClient);
+	MemBitmap.CreateCompatibleBitmap(pDC, rcClient.Width(), rcClient.Height());
+	//将位图选入到内存显示设备中
+	//只有选入了位图的内存显示设备才有地方绘图，画到指定的位图上
+	CBitmap* pOldBit = MemDC.SelectObject(&MemBitmap);
+	//先用背景色将位图清除干净，这里我用的是白色作为背景
+	//你也可以用自己应该用的颜色
+	MemDC.FillSolidRect(0, 0, rcClient.Width(), rcClient.Height(),
+		RGB(255, 255, 255));       //绘图
+	DrawPoints(&MemDC);
+	//将内存中的图拷贝到屏幕上进行显示
+	pDC->BitBlt(0, 0, rcClient.Width(), rcClient.Height(),
+		&MemDC, 0, 0, SRCCOPY);       //绘图完成后的清理
+	MemBitmap.DeleteObject();
+	MemDC.DeleteDC();
 	
 	CMainFrame* pMainFrame = (CMainFrame*)AfxGetApp()->m_pMainWnd;
 	
@@ -221,6 +243,14 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 	
 
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel != ToolDialog::DRAWYUANHU) //圆弧初始化
+	{
+		twop = 0;
+		ing = 0;
+		beginPoint2 = (0, 0);
+		beginPoint3 = (0, 0);
+	}
+
 	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWLINE)	//判断操作是否是画线
 	{
 		beginPoint = point;
@@ -254,6 +284,26 @@ void CMyCadView::OnLButtonDown(UINT nFlags, CPoint point)
 	{
 		beginPoint = point;
 	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWYUANHU) //画圆弧
+	{
+
+		if (twop == 0)
+		{
+			beginPoint = point;
+		
+		}
+		if (twop == 1)
+			beginPoint2 = point;
+		if (twop == 2)
+		{
+			beginPoint3 = point;
+			currentStep++;
+		}
+			
+		if (twop > 1)
+			ing = 1;
+		twop++;
+	}
 	CView::OnLButtonDown(nFlags, point);
 
 }
@@ -264,7 +314,7 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
 	COLORREF color = pMainFrame->m_toolBoxView.m_toolDialog.currentColor;	//获取颜色
-
+	
 	endPoint = point;
 	while (endPoint == beginPoint)	//起点终点想同，退出
 	{
@@ -362,6 +412,22 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 		this->SetTreeDialog(currentStep, _T("绘制贝塞尔曲线"));
 
 	}
+	else if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::DRAWYUANHU)	//绘制圆弧
+	{
+		if (ing > 0)
+		{
+			ing = 0;
+			twop = 0;
+			this->SetRoundCircle(beginPoint, point, beginPoint2, beginPoint3, color, currentStep - 1);
+
+			beginPoint = CPoint(0, 0);	//重置点
+			beginPoint2 = CPoint(0, 0);
+			endPoint = CPoint(0, 0);
+
+			this->SetTreeDialog(currentStep, _T("绘制圆弧"));
+			Invalidate();
+		}
+	}
 
 
 	CView::OnLButtonUp(nFlags, point);
@@ -372,6 +438,7 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 {
 	// TODO: 在此添加消息处理程序代码和/或调用默认值
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+	
 	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel == ToolDialog::MOVEOBJECT && beginTransform)	//移动事件
 	{
 		
@@ -482,8 +549,55 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 			this->SetBezier(p1, p2, color, currentEditStep);	//重新绘制
 
 		}
-		Invalidate();
+		else if (editSteps[currentEditStep].type == ROUNDCIRCLE && !ing)	//移动的对象是圆弧
+		{
+
+			COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+			//点1为左点 点2为右点 点三为判定方向的点 点四为圆心点
+			CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+			CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+			CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+			CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
+
+			int dx = point.x - editSteps[currentEditStep].centerPoint.x;	//获取位移量
+			int dy = point.y - editSteps[currentEditStep].centerPoint.y;
+
+			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
+			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
+			p3 = MyTransform::myglTranslatef(dx, dy, &p3);
+			p4 = MyTransform::myglTranslatef(dx, dy, &p4);
+
+
+
+			this->SetRoundCircle(p1, p4, p2, p3, color, currentEditStep);//重新绘制
+
+		}
 		
+
+		Invalidate();
+
+
+	}
+	if (pMainFrame->m_toolBoxView.m_toolDialog.currentModel==ToolDialog::DRAWYUANHU && ing)	//画圆弧事件
+	{
+		CClientDC pDC(this);
+		if (ing == 1)//正在选择
+		{
+			CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+			COLORREF color = pMainFrame->m_toolBoxView.m_toolDialog.currentColor;	//获取颜色
+
+			endPoint = point;
+
+			if (beginPoint.x != endPoint.x && beginPoint != endPoint)
+			{
+				pDC.MoveTo(beginPoint);
+				pDC.LineTo(beginPoint2);
+				this->SetRoundCircle(beginPoint, point, beginPoint2, beginPoint3, color, currentStep - 1);
+				Invalidate();
+			}
+		}
+	
 
 	}
 	CView::OnMouseMove(nFlags, point);
@@ -743,6 +857,81 @@ void CMyCadView::SetBezier(CPoint p1, CPoint p2, COLORREF color, int s)
 	newPoint->y = p2.y;
 	newPoint->color = color;
 	newPoint->next = NULL;
+}
+
+
+//设置圆弧(x1为第一个点 p1只取圆弧圆心的x坐标 p2为另一个点)
+void CMyCadView::SetRoundCircle(CPoint x1, CPoint p1, CPoint p2, CPoint p3, COLORREF color, int s)
+{
+	//p1只用到y
+	double midx, midy, k, k2, b, b2, p1x;
+	//用来判断的
+	int fuhao;
+	midx = (x1.x + p2.x) / 2;
+	midy = (x1.y + p2.y) / 2;
+	k = (double)(p2.y - x1.y) / (double)(p2.x - x1.x);
+	b = p2.y - k * p2.x;
+	k2 = -(1 / k);
+	b2 = midy - k2 * midx;
+	if (k * p3.x + b - p3.y < 0)
+		fuhao = -1;
+	else fuhao = 1;
+
+	CPoint yuanxin;
+	yuanxin.x = p1.x;
+	yuanxin.y = k2 * p1.x + b2;
+
+	DrawCircle MyDrawCircle;
+	MyDrawCircle.MidPntCircle(yuanxin.x, yuanxin.y, p2.x, p2.y, color);
+	DrawLine::pStepPoint p = MyDrawCircle.stepPoint;	//获取MyDrawLine的像素点
+	stepPoints[s].step = s;	//写入操作步骤
+	Points* q = &(stepPoints[s].point);	//获取表头结点
+	while (p)	//写入像素点数据
+	{
+		q->x = p->x;
+		q->y = p->y;
+		q->color = p->color;
+		if (fuhao * (k * p->x + b - p->y) > 0)
+			//if (k * p1.x + b - p1.y < 0 && k * p->x + b - p->y < 0 || k * p1.x + b - p1.y > 0 && k * p->x + b - p->y > 0)
+		{
+			Points* nq = new Points;
+			nq->next = NULL;
+			q->next = nq;
+			q = q->next;
+		}
+		p = p->next;
+
+	}
+
+	//保存操作记录
+	if (ing == 0)
+	{
+		//点1为左点 点2为右点 点三为判定方向的点 点四为圆心点
+		editSteps[s].type = ROUNDCIRCLE; //绘制的是线条
+		editSteps[s].centerPoint = CPoint(midx, midy);//中心点
+		editSteps[s].point.x = x1.x;	//写入关键点1数据
+		editSteps[s].point.y = x1.y;
+		editSteps[s].point.color = color;
+		Points* newPoint = new Points;
+		editSteps[s].point.next = newPoint;
+		newPoint->x = p2.x;	//写入关键点2数据
+		newPoint->y = p2.y;
+		newPoint->color = color;
+		newPoint->next = NULL;
+		editSteps[s].point.next = newPoint;
+		newPoint = new Points;
+		newPoint->x = p3.x;	//写入关键点3数据
+		newPoint->y = p3.y;
+		newPoint->color = color;
+		newPoint->next = NULL;
+		editSteps[s].point.next->next = newPoint;
+		newPoint = new Points;
+		newPoint->x = p1.x;	//写入关键点4数据
+		newPoint->y = p1.y;
+		newPoint->color = color;
+		newPoint->next = NULL;
+		editSteps[s].point.next->next->next = newPoint;
+	}
 }
 
 

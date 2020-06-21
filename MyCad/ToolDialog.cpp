@@ -41,6 +41,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_WM_PAINT()
 	ON_BN_CLICKED(IDC_BUTTON8, &ToolDialog::OnDrawFillCircle)
 	ON_BN_CLICKED(IDC_BUTTON9, &ToolDialog::OnDrawBezier)
+	ON_BN_CLICKED(IDC_BUTTON11, &ToolDialog::OnDrawYuanHu)
 END_MESSAGE_MAP()
 
 
@@ -168,4 +169,11 @@ void ToolDialog::OnDrawBezier()
 	// TODO: 在此添加控件通知处理程序代码
 	currentModel = DRAWBEZIER;
 
+}
+
+
+void ToolDialog::OnDrawYuanHu()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = DRAWYUANHU;
 }

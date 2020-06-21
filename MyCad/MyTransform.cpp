@@ -12,7 +12,7 @@ CPoint MyTransform::myglTranslatef(float x, float y, CPoint * point)
 	MATRIX *translate_matrix = new MATRIX;
 	InitTranslateMatrix(x, y, translate_matrix);
 	MatrixMultipy(&P, translate_matrix);
-	
+
 	return CPoint(P.x, P.y);
 }
 

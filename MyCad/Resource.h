@@ -38,6 +38,8 @@
 #define IDC_PIC                         1020
 #define IDC_SLIDER3                     1021
 #define IDC_SLIDER4                     1022
+#define IDC_BUTTON12                    1024
+#define IDC_BUTTON13                    1025
 #define ID_Menu                         32771
 #define ID_Menu32772                    32772
 #define ID_Menu32773                    32773
@@ -53,7 +55,7 @@
 #ifndef APSTUDIO_READONLY_SYMBOLS
 #define _APS_NEXT_RESOURCE_VALUE        316
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1021
+#define _APS_NEXT_CONTROL_VALUE         1025
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif
