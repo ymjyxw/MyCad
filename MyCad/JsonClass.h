@@ -23,6 +23,7 @@ public:
 	void SetJsonRectStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2);	//写入json数据
 	void SetJsonFillRectStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2);	//写入json数据
 	void SetJsonFillCircleStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2);	//写入json数据
+	void SetJsonBezierStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2);	//写入json数据
 	void ExportJsonFile(CString path);	//保存json文件
 	void OpenJsonFile(); //打开json文件
 	

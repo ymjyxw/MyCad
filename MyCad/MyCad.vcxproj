@@ -192,6 +192,7 @@
   <ItemGroup>
     <ClInclude Include="COpenGLControl.h" />
     <ClInclude Include="CreateGLDialog.h" />
+    <ClInclude Include="DrawBezier.h" />
     <ClInclude Include="DrawCircle.h" />
     <ClInclude Include="DrawFillCircle.h" />
     <ClInclude Include="DrawFillRect.h" />
@@ -224,6 +225,7 @@
   <ItemGroup>
     <ClCompile Include="COpenGLControl.cpp" />
     <ClCompile Include="CreateGLDialog.cpp" />
+    <ClCompile Include="DrawBezier.cpp" />
     <ClCompile Include="DrawCircle.cpp" />
     <ClCompile Include="DrawFillCircle.cpp" />
     <ClCompile Include="DrawFillRect.cpp" />

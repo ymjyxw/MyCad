@@ -27,6 +27,7 @@ public:
 		DRAWLINE,
 		DRAWCIRCLE,
 		DRAWRECT,
+		DRAWBEZIER,
 
 		DRAWFILLRECT,
 		DRAWFILLCIRCLE,
@@ -56,4 +57,5 @@ public:
 	
 	afx_msg void OnPaint();
 	afx_msg void OnDrawFillCircle();
+	afx_msg void OnDrawBezier();
 };

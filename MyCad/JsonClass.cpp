@@ -166,6 +166,38 @@ void JsonClass::SetJsonFillCircleStep(int cx, int cy, int x1, int y1, int r1, in
 		total_step++; 
 }
 
+void JsonClass::SetJsonBezierStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2)
+{
+	step[total_step]["type"] = Json::Value("BEZIER");
+
+	//数组形式
+
+	step[total_step]["CenterPoint"].append(cx);
+	step[total_step]["CenterPoint"].append(cy);
+
+
+	step[total_step]["Point_1"].append(x1);
+	step[total_step]["Point_1"].append(y1);
+	step[total_step]["Point_1"].append(r1);
+	step[total_step]["Point_1"].append(g1);
+	step[total_step]["Point_1"].append(b1);
+
+	step[total_step]["Point_2"].append(x2);
+	step[total_step]["Point_2"].append(y2);
+	step[total_step]["Point_2"].append(r2);
+	step[total_step]["Point_2"].append(g2);
+	step[total_step]["Point_2"].append(b2);
+
+	string str;
+	CString cstr;
+	cstr.Format("%03d", total_step + 1);
+	str = cstr.GetBuffer(0);
+	//子节点挂到根节点上
+	root["DrawStep_" + str] = Json::Value(step[total_step]);
+	if (total_step < 999)
+		total_step++;
+}
+
 
 void JsonClass::ExportJsonFile(CString path)
 {
