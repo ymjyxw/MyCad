@@ -62,7 +62,6 @@ public:
 	{
 		int step;		//第step步
 		Points  point;	//当前操作步骤链表头节点
-		int xl, xr, yt, yb;		//边的高度
 	}*pStepPoints;
 
 	enum Type {
@@ -114,9 +113,8 @@ public:
 	void DrawStepPoints(CDC* pDC, int step);	//绘制某一步骤的图形
 	bool DeleteDirectory(CString  strDir); //删除视频缓存
 
-	void RotateObject();	//旋转函数
-
-
+	void RotateObject();//旋转
+	void ScaleObject();//缩放
 	
 
 

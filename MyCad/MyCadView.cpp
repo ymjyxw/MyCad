@@ -24,6 +24,7 @@
 #include "MyTransform.h"
 #include "JsonClass.h"
 #include "CreateGLDialog.h"
+#include "RotateDialog.h"
 
 #ifdef _DEBUG
 #define new DEBUG_NEW
@@ -654,26 +655,13 @@ void CMyCadView::SetRect(CPoint p1, CPoint p2, COLORREF color, int s)
 	MyDrawRect.drawRect(p1.x, p1.y, p2.x, p2.y, color);
 	DrawRect::pStepPoint p = MyDrawRect.stepPoint;	//获取MyDrawLine的像素点
 	stepPoints[s].step = s;	//写入操作步骤
-	stepPoints[s].xl = p1.x;
-	stepPoints[s].xr = p1.x;
-	stepPoints[s].yt = p1.y;
-	stepPoints[s].yb = p1.y;
+
 
 	Points* q = &(stepPoints[s].point);	//获取表头结点
 
 	while (p)	//写入像素点数据
 	{
-		//比较并更新边缘值
-		if (p->x >= stepPoints[s].xl && p->x <= stepPoints[s].xr && p->y <= stepPoints[s].yt && p->y >= stepPoints[s].yb) {
-
-		}
-		else {//当需要更新图形的边值时
-			if (p->x < stepPoints[s].xl) stepPoints[s].xl = p->x;
-			if (p->x > stepPoints[s].xr) stepPoints[s].xr = p->x;
-			if (p->y < stepPoints[s].yb) stepPoints[s].yb = p->y;
-			if (p->y > stepPoints[s].yt) stepPoints[s].yt = p->y;
-		}
-
+		
 		q->x = p->x;
 		q->y = p->y;
 		q->color = p->color;
@@ -1101,6 +1089,17 @@ void CMyCadView::OnFileSave()
 				MyJson.SetJsonFillCircleStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			else if (p.type == BEZIER)
 				MyJson.SetJsonBezierStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			else if (p.type == ROUNDCIRCLE)
+			{
+				CPoint pc = p.centerPoint;
+				Points p1 = p.point;
+				Points *p2 = p.point.next;
+				Points *p3 = p.point.next->next;
+				Points *p4 = p.point.next->next->next;
+
+				MyJson.SetJsonRoundCircleStep(pc.x, pc.y, GetRValue(p1.color), GetGValue(p1.color), GetBValue(p1.color), p1.x, p1.y, p2->x, p2->y, p3->x, p3->y, p4->x, p4->y);
+			}
+				
 			i++;
 		}
 
@@ -1183,6 +1182,18 @@ void CMyCadView::OnFileOpen()
 			this->SetBezier(p1, p2, color, i);
 			currentStep++;	//绘制步骤+1
 			this->SetTreeDialog(currentStep, _T("绘制贝塞尔曲线"));
+		}
+		else if (type == _T("ROUNDCIRCLE"))
+		{
+			CPoint p1 = MyJson.GetPoint(i + 1, 1);
+			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			CPoint p3 = MyJson.GetPoint(i + 1, 3);
+			CPoint p4 = MyJson.GetPoint(i + 1, 4);
+
+			COLORREF color = MyJson.GetColor(i + 1, 1);
+			this->SetRoundCircle(p1, p2, p3, p4, color, i);
+			currentStep++;	//绘制步骤+1
+			this->SetTreeDialog(currentStep, _T("绘制圆弧"));
 		}
 	}
 	Invalidate();
@@ -1334,73 +1345,271 @@ void CMyCadView::OnShowGLDialog()
 }
 
 
-//显示旋转对话框
+//旋转
 void CMyCadView::RotateObject()
 {
-	//MessageBox(_T("显示旋转对话框"));
+	float angle, x, y;
+	bool isCenter;
+	RotateDialog dlg = new RotateDialog;
+	dlg.DoModal();
 
-	float angle;
-	//Todo:弹出对话框，输入旋转数据，然后获取
+	if (!dlg.isRotate)
+		return;
 
-	//CtrPsDialog dlg = new CtrPsDialog;
-	//dlg.DoModal();
-	//angle = dlg.num1;
-	angle = 45.0f;
+	angle = dlg.angle * PI / 180;//旋转角度
+	x = dlg.RotateX;//关于旋转x坐标
+	y = dlg.RotateY;//关于旋转y坐标
+	isCenter = dlg.isCenter;
 
-	//Todo:获取当前修改的图形
 	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
-
 	//当前只修改这一步骤下的图形
 	currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
 	if (currentEditStep < 0)	//没有选中图形，直接退出
 		return;
 
-	//editSteps[currentEditStep] //要修改的图形
 
-	//Todo:旋转
 	if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
 	{
 		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
 		CPoint pc = editSteps[currentEditStep].centerPoint;
+
 		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
-		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);	//位移关键点
-		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);
-		//Todo:重新写入数据
+		if (isCenter)
+		{
+			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+		}
+		else
+		{
+			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+		
+		}
+
+
 		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
-
-	}
-
-	else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是线条
-	{
-		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
-		CPoint pc = editSteps[currentEditStep].centerPoint;
-		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
-		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
-
-		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);	//位移关键点
-		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);
-		//Todo:重新写入数据
-		this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
-
 	}
 	else if (editSteps[currentEditStep].type == RECT)	//移动的对象是线条
 	{
 		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
 		CPoint pc = editSteps[currentEditStep].centerPoint;
+
 		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
-		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);	//位移关键点
-		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);
-		//Todo:重新写入数据
+		if (isCenter)
+		{
+			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+		}
+		else
+		{
+			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+
+		}
 		this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		if (isCenter)
+		{
+			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+		}
+		else
+		{
+			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+
+		}
+
+		this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == BEZIER)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		if (isCenter)
+		{
+			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+		}
+		else
+		{
+			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+
+		}
+
+		this->SetBezier(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == FILLRECT)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		if (isCenter)
+		{
+			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+		}
+		else
+		{
+			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+
+		}
+
+		this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == FILLCIRCLE)	//移动的对象是线条
+	{
+	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+	CPoint pc = editSteps[currentEditStep].centerPoint;
+
+	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+	if (isCenter)
+	{
+		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+	}
+	else
+	{
+		p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+		p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
 
 	}
 
-	//Todo:刷新屏幕
+	this->SetFillCircle(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == ROUNDCIRCLE)	//移动的对象是线条
+	{
+	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+	CPoint pc = editSteps[currentEditStep].centerPoint;
+
+	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+	CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+	CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
+
+
+	if (isCenter)
+	{
+		p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
+		p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+		p3 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p3);//位移关键点
+		p4 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p4);//位移关键点
+	}
+	else
+	{
+		p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
+		p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+		p3 = MyTransform::myglRotatef(angle, x, y, &p3);//位移关键点
+		p4 = MyTransform::myglRotatef(angle, x, y, &p4);//位移关键点
+
+	}
+
+	this->SetRoundCircle(p1, p2,p3,p4, color, currentEditStep);	//重新绘制
+	}
 	Invalidate();
 
 
+}
+
+//缩放
+void CMyCadView::ScaleObject()
+{
+	//float x, y;
+	//ScaleDialog dlg = new ScaleDialog;
+	//dlg.DoModal();
+	//x = dlg.ScaleX;//关于旋转x坐标
+	//y = dlg.ScaleY;//关于旋转y坐标
+//
+//	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+////当前只修改这一步骤下的图形
+//	currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
+//	if (currentEditStep < 0)	//没有选中图形，直接退出
+//		return;
+//
+//	if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
+//	{
+//		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+//
+//		CPoint pc = editSteps[currentEditStep].centerPoint;
+//		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+//		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+//
+//		p1 = MyTransform::myglScalef(3, 3, pc, &p1);
+//		p2 = MyTransform::myglScalef(3, 3, pc, &p2);
+//
+//		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
+//	}
+	//else if (editSteps[currentEditStep].type == FILLRECT)	//移动的对象是填充矩形
+	//{
+	//	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+	//	CPoint pc = editSteps[currentEditStep].centerPoint;
+
+	//	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+	//	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+	//	p1 = MyTransform::myglScalef(x, y, &p1);//缩放关键点
+	//	p2 = MyTransform::myglScalef(x, y, &p2);
+
+	//	this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
+	//}
+	//else if (editSteps[currentEditStep].type == RECT)	//移动的对象是矩形
+	//{
+	//	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+	//	CPoint pc = editSteps[currentEditStep].centerPoint;
+
+	//	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+	//	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+	//	p1 = MyTransform::myglScalef(x, y, &p1);//缩放关键点
+	//	p2 = MyTransform::myglScalef(x, y, &p2);
+
+	//	this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+	//}
+	//else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是圆形
+	//{
+	//	COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+	//	CPoint pc = editSteps[currentEditStep].centerPoint;
+
+	//	CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+	//	CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+	//	p1 = MyTransform::myglScalef(x, y, &p1);//缩放关键点
+	//	p2 = MyTransform::myglScalef(x, y, &p2);
+
+	//	this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
+	//}
+	Invalidate();
 }

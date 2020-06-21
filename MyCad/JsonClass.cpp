@@ -198,6 +198,51 @@ void JsonClass::SetJsonBezierStep(int cx, int cy, int x1, int y1, int r1, int g1
 		total_step++;
 }
 
+void JsonClass::SetJsonRoundCircleStep(int cx, int cy, int r, int g, int b, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
+{
+	step[total_step]["type"] = Json::Value("ROUNDCIRCLE");
+
+	//数组形式
+
+	step[total_step]["CenterPoint"].append(cx);
+	step[total_step]["CenterPoint"].append(cy);
+
+
+	step[total_step]["Point_1"].append(x1);
+	step[total_step]["Point_1"].append(y1);
+	step[total_step]["Point_1"].append(r);
+	step[total_step]["Point_1"].append(g);
+	step[total_step]["Point_1"].append(b);
+
+	step[total_step]["Point_2"].append(x2);
+	step[total_step]["Point_2"].append(y2);
+	step[total_step]["Point_2"].append(r);
+	step[total_step]["Point_2"].append(g);
+	step[total_step]["Point_2"].append(b);
+
+	step[total_step]["Point_3"].append(x3);
+	step[total_step]["Point_3"].append(y3);
+	step[total_step]["Point_3"].append(r);
+	step[total_step]["Point_3"].append(g);
+	step[total_step]["Point_3"].append(b);
+
+
+	step[total_step]["Point_4"].append(x4);
+	step[total_step]["Point_4"].append(y4);
+	step[total_step]["Point_4"].append(r);
+	step[total_step]["Point_4"].append(g);
+	step[total_step]["Point_4"].append(b);
+
+	string str;
+	CString cstr;
+	cstr.Format("%03d", total_step + 1);
+	str = cstr.GetBuffer(0);
+	//子节点挂到根节点上
+	root["DrawStep_" + str] = Json::Value(step[total_step]);
+	if (total_step < 999)
+		total_step++;
+}
+
 
 void JsonClass::ExportJsonFile(CString path)
 {

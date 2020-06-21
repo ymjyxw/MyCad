@@ -108,6 +108,9 @@
     <ClInclude Include="DrawBezier.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="RotateDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyCad.cpp">
@@ -168,6 +171,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="DrawBezier.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="RotateDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>
