@@ -68,7 +68,7 @@ void JsonClass::SetJsonCircleStep(int cx, int cy, int x1, int y1, int r1, int g1
 
 }
 
-void JsonClass::SetJsonRectStep(int cx, int cy, int x1, int y1, int r1, int g1, int b1, int x2, int y2, int r2, int g2, int b2)
+void JsonClass::SetJsonRectStep(int cx, int cy, int r, int g, int b, int x1, int y1, int x2, int y2, int x3, int y3, int x4, int y4)
 {
 	step[total_step]["type"] = Json::Value("RECT");
 
@@ -77,19 +77,34 @@ void JsonClass::SetJsonRectStep(int cx, int cy, int x1, int y1, int r1, int g1, 
 	step[total_step]["CenterPoint"].append(cx);
 	step[total_step]["CenterPoint"].append(cy);
 
+	step[total_step]["CenterPoint"].append(cx);
+	step[total_step]["CenterPoint"].append(cy);
+
 
 	step[total_step]["Point_1"].append(x1);
 	step[total_step]["Point_1"].append(y1);
-	step[total_step]["Point_1"].append(r1);
-	step[total_step]["Point_1"].append(g1);
-	step[total_step]["Point_1"].append(b1);
+	step[total_step]["Point_1"].append(r);
+	step[total_step]["Point_1"].append(g);
+	step[total_step]["Point_1"].append(b);
 
 	step[total_step]["Point_2"].append(x2);
 	step[total_step]["Point_2"].append(y2);
-	step[total_step]["Point_2"].append(r2);
-	step[total_step]["Point_2"].append(g2);
-	step[total_step]["Point_2"].append(b2);
+	step[total_step]["Point_2"].append(r);
+	step[total_step]["Point_2"].append(g);
+	step[total_step]["Point_2"].append(b);
 
+	step[total_step]["Point_3"].append(x3);
+	step[total_step]["Point_3"].append(y3);
+	step[total_step]["Point_3"].append(r);
+	step[total_step]["Point_3"].append(g);
+	step[total_step]["Point_3"].append(b);
+
+
+	step[total_step]["Point_4"].append(x4);
+	step[total_step]["Point_4"].append(y4);
+	step[total_step]["Point_4"].append(r);
+	step[total_step]["Point_4"].append(g);
+	step[total_step]["Point_4"].append(b);
 	string str;
 	CString cstr;
 	cstr.Format("%03d", total_step + 1);

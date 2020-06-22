@@ -103,7 +103,7 @@ public:
 
 	void DrawPoints(CDC *pDC);	//绘制点
 	void SetLine(CPoint p1, CPoint p2, COLORREF color,int s);	//设置线条,s为设置的步骤
-	void SetRect(CPoint p1, CPoint p2, COLORREF color, int s); //设置矩形
+	void SetRect(CPoint p1, CPoint p2, CPoint p3, CPoint p4, COLORREF color, int s); //设置矩形
 	void SetCircle(CPoint p1,CPoint p2, COLORREF color, int s); //设置圆
 	void SetFillRect(CPoint p1, CPoint p2, COLORREF color, int s);//设置实心矩形
 	void SetFillCircle(CPoint p1, CPoint p2, COLORREF color, int s);//设置实心圆形

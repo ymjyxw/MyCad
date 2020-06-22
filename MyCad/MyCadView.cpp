@@ -373,7 +373,7 @@ void CMyCadView::OnLButtonUp(UINT nFlags, CPoint point)
 	{
 		
 
-		this->SetRect(beginPoint, endPoint, color, currentStep);
+		this->SetRect(beginPoint, CPoint(endPoint.x, beginPoint.y), endPoint, CPoint(beginPoint.x, endPoint.y), color, currentStep);
 
 		Invalidate(false);
 
@@ -526,14 +526,19 @@ void CMyCadView::OnMouseMove(UINT nFlags, CPoint point)
 			COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
 			CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 			CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+			CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+			CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
+		
 
 			int dx = point.x - editSteps[currentEditStep].centerPoint.x;	//获取位移量
 			int dy = point.y - editSteps[currentEditStep].centerPoint.y;
 
 			p1 = MyTransform::myglTranslatef(dx, dy, &p1);	//位移关键点
 			p2 = MyTransform::myglTranslatef(dx, dy, &p2);
+			p3 = MyTransform::myglTranslatef(dx, dy, &p3);
+			p4 = MyTransform::myglTranslatef(dx, dy, &p4);
 
-			this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+			this->SetRect(p1, p2,p3,p4, color, currentEditStep);	//重新绘制
 
 		}
 		else if(editSteps[currentEditStep].type == FILLRECT)	//移动的对象是实心矩形
@@ -680,16 +685,17 @@ void CMyCadView::SetLine(CPoint p1, CPoint p2, COLORREF color, int s )
 
 }
 //设置矩形
-void CMyCadView::SetRect(CPoint p1, CPoint p2, COLORREF color, int s)
+void CMyCadView::SetRect(CPoint p1, CPoint p2, CPoint p3,CPoint p4, COLORREF color, int s)
 {
 	DrawRect MyDrawRect;
-	MyDrawRect.drawRect(p1.x, p1.y, p2.x, p2.y, color);
+	MyDrawRect.drawRect(p1, p2, p3, p4, color);
 	DrawRect::pStepPoint p = MyDrawRect.stepPoint;	//获取MyDrawLine的像素点
 	stepPoints[s].step = s;	//写入操作步骤
 
 
 	Points* q = &(stepPoints[s].point);	//获取表头结点
 
+	
 	while (p)	//写入像素点数据
 	{
 		
@@ -701,10 +707,11 @@ void CMyCadView::SetRect(CPoint p1, CPoint p2, COLORREF color, int s)
 		q->next = nq;
 		q = q->next;
 		p = p->next;
+		
 	}
 
 	editSteps[s].type = RECT; //绘制的是线条
-	editSteps[s].centerPoint = CPoint((p1.x + p2.x) / 2, (p1.y + p2.y) / 2);//中心点
+	editSteps[s].centerPoint = CPoint((p1.x + p3.x) / 2, (p1.y + p3.y) / 2);//中心点
 	editSteps[s].point.x = p1.x;	//写入关键点数据
 	editSteps[s].point.y = p1.y;
 	editSteps[s].point.color = color;
@@ -714,7 +721,18 @@ void CMyCadView::SetRect(CPoint p1, CPoint p2, COLORREF color, int s)
 	newPoint->y = p2.y;
 	newPoint->color = color;
 	newPoint->next = NULL;
-
+	Points* newPoint2 = new Points;
+	editSteps[s].point.next->next = newPoint2;
+	newPoint2->x = p3.x;	//写入关键点数据
+	newPoint2->y = p3.y;
+	newPoint2->color = color;
+	newPoint2->next = NULL;
+	Points* newPoint3 = new Points;
+	editSteps[s].point.next->next->next = newPoint3;
+	newPoint3->x = p4.x;	//写入关键点数据
+	newPoint3->y = p4.y;
+	newPoint3->color = color;
+	newPoint3->next = NULL;
 }
 
 //设置圆
@@ -1113,7 +1131,16 @@ void CMyCadView::OnFileSave()
 			else if (p.type == CIRCLE)
 				MyJson.SetJsonCircleStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			else if (p.type == RECT)
-				MyJson.SetJsonRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
+			{
+				CPoint pc = p.centerPoint;
+				Points p1 = p.point;
+				Points* p2 = p.point.next;
+				Points* p3 = p.point.next->next;
+				Points* p4 = p.point.next->next->next;
+
+				MyJson.SetJsonRectStep(pc.x, pc.y, GetRValue(p1.color), GetGValue(p1.color), GetBValue(p1.color), p1.x, p1.y, p2->x, p2->y, p3->x, p3->y, p4->x, p4->y);
+			}
+				
 			else if (p.type == FILLRECT)
 				MyJson.SetJsonFillRectStep(p.centerPoint.x, p.centerPoint.y, p.point.x, p.point.y, GetRValue(p.point.color), GetGValue(p.point.color), GetBValue(p.point.color), p.point.next->x, p.point.next->y, GetRValue(p.point.next->color), GetGValue(p.point.next->color), GetBValue(p.point.next->color));
 			else if (p.type == FILLCIRCLE)
@@ -1182,8 +1209,10 @@ void CMyCadView::OnFileOpen()
 		{
 			CPoint p1 = MyJson.GetPoint(i + 1, 1);
 			CPoint p2 = MyJson.GetPoint(i + 1, 2);
+			CPoint p3 = MyJson.GetPoint(i + 1, 3);
+			CPoint p4 = MyJson.GetPoint(i + 1, 4);
 			COLORREF color = MyJson.GetColor(i + 1, 1);
-			this->SetRect(p1, p2, color, i);
+			this->SetRect(p1, p2, p3,p4,color, i);
 			currentStep++;	//绘制步骤+1
 			this->SetTreeDialog(currentStep, _T("绘制矩形"));
 		}
@@ -1407,16 +1436,19 @@ void CMyCadView::RotateObject()
 
 		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		
 
 		if (isCenter)
 		{
 			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
 			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+			
 		}
 		else
 		{
 			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
 			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
+		
 		
 		}
 
@@ -1431,19 +1463,23 @@ void CMyCadView::RotateObject()
 
 		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
-
+		CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+		CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
 		if (isCenter)
 		{
 			p1 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p1);//位移关键点
 			p2 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p2);//位移关键点
+			p3 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p3);//位移关键点
+			p4 = MyTransform::myglRotatef(angle, pc.x, pc.y, &p4);//位移关键点
 		}
 		else
 		{
 			p1 = MyTransform::myglRotatef(angle, x, y, &p1);//位移关键点
 			p2 = MyTransform::myglRotatef(angle, x, y, &p2);//位移关键点
-
+			p3 = MyTransform::myglRotatef(angle, x, y, &p3);//位移关键点
+			p4 = MyTransform::myglRotatef(angle, x, y, &p4);//位移关键点
 		}
-		this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+		this->SetRect(p1, p2, p3,p4,color, currentEditStep);	//重新绘制
 	}
 	else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是线条
 	{
@@ -1614,11 +1650,15 @@ void CMyCadView::ScaleObject()
 
 		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+		CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
 
 		p1 = MyTransform::myglScalef(x, y,pc, &p1);//缩放关键点
 		p2 = MyTransform::myglScalef(x, y,pc, &p2);
+		p3 = MyTransform::myglScalef(x, y,pc, &p3);
+		p4 = MyTransform::myglScalef(x, y,pc, &p4);
 
-		this->SetRect(p1, p2, color, currentEditStep);	//重新绘制
+		this->SetRect(p1, p2,p3,p4, color, currentEditStep);	//重新绘制
 	}
 	else if (editSteps[currentEditStep].type == FILLRECT)	//移动的对象是矩形
 	{
