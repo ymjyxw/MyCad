@@ -78,6 +78,31 @@ void MyTransform::InitScaleMatrix(float x, float y, MATRIX* matrix)
 	matrix->z3 = 1;
 }
 
+void MyTransform::InitMirrorMatrix( MATRIX* matrix, int direction)
+{
+	if (direction == 1)
+	{
+		matrix->x1 = 1;
+		matrix->y2 = -1;
+		matrix->x2 = matrix->y1 = matrix->x3 = matrix->y3 = matrix->z1 = matrix->z2 = 0;
+		matrix->z3 = 1;
+	}
+	else if (direction == 2)
+	{
+		matrix->x1 = -1;
+		matrix->y2 = 1;
+		matrix->x2 = matrix->y1 = matrix->x3 = matrix->y3 = matrix->z1 = matrix->z2 = 0;
+		matrix->z3 = 1;
+	}
+	else
+	{
+		matrix->x1 = -1;
+		matrix->y2 = -1;
+		matrix->x2 = matrix->y1 = matrix->x3 = matrix->y3 = matrix->z1 = matrix->z2 = 0;
+		matrix->z3 = 1;
+	}
+}
+
 
 
 CPoint MyTransform::myglScalef(float x, float y, CPoint cc, CPoint* point)
@@ -110,4 +135,26 @@ CPoint MyTransform::myglScalef(float x, float y, CPoint cc, CPoint* point)
 
 
 	return CPoint(P.x, P.y);
+}
+
+CPoint MyTransform::myglMirrorf(CPoint cc,CPoint* point, int direction)
+{
+	PointMatrix P;
+	P.x = point->x;
+	P.y = point->y;
+	P.z = 1;
+
+	MATRIX* translate_matrix1 = new MATRIX;
+	InitTranslateMatrix(-1 * cc.x, -1 * cc.y, translate_matrix1);
+	MatrixMultipy(&P, translate_matrix1);
+
+	MATRIX* mirror_matrix = new MATRIX;
+	InitMirrorMatrix(mirror_matrix, direction);
+	MatrixMultipy(&P, mirror_matrix);
+
+	MATRIX* translate_matrix2 = new MATRIX;
+	InitTranslateMatrix(cc.x, cc.y, translate_matrix2);
+	MatrixMultipy(&P, translate_matrix2);
+
+	return CPoint(P.x,P.y);
 }

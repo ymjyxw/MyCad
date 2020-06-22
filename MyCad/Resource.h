@@ -21,6 +21,7 @@
 #define IDD_DIALOG1                     314
 #define IDD_DIALOG2                     316
 #define IDD_DIALOG3                     318
+#define IDD_DIALOG4                     322
 #define IDC_BUTTON1                     1000
 #define IDC_BUTTON2                     1001
 #define IDC_BUTTON7                     1002
@@ -45,6 +46,10 @@
 #define IDC_BUTTON12                    1024
 #define IDC_BUTTON13                    1025
 #define IDC_CHECK1                      1025
+#define IDC_RADIO1                      1026
+#define IDC_RADIO2                      1027
+#define IDC_RADIO3                      1028
+#define IDC_RADIO4                      1029
 #define ID_Menu                         32771
 #define ID_Menu32772                    32772
 #define ID_Menu32773                    32773
@@ -58,9 +63,9 @@
 // 
 #ifdef APSTUDIO_INVOKED
 #ifndef APSTUDIO_READONLY_SYMBOLS
-#define _APS_NEXT_RESOURCE_VALUE        320
+#define _APS_NEXT_RESOURCE_VALUE        324
 #define _APS_NEXT_COMMAND_VALUE         32779
-#define _APS_NEXT_CONTROL_VALUE         1026
+#define _APS_NEXT_CONTROL_VALUE         1027
 #define _APS_NEXT_SYMED_VALUE           310
 #endif
 #endif

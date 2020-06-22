@@ -36,6 +36,7 @@ public:
 		MOVEOBJECT,
 		ROTATEOBJECT,
 		SCALEOBJECT,
+		MIRROROBJECT,
 
 		CHANGECOLOR
 	};
@@ -61,4 +62,5 @@ public:
 	afx_msg void OnDrawBezier();
 	afx_msg void OnDrawYuanHu();
 	afx_msg void OnScale();
+	afx_msg void OnMirrorObject();
 };

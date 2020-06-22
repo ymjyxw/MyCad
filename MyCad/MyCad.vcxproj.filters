@@ -114,6 +114,9 @@
     <ClInclude Include="ScaleDialog.h">
       <Filter>头文件</Filter>
     </ClInclude>
+    <ClInclude Include="mirrorDialog.h">
+      <Filter>头文件</Filter>
+    </ClInclude>
   </ItemGroup>
   <ItemGroup>
     <ClCompile Include="MyCad.cpp">
@@ -180,6 +183,9 @@
       <Filter>源文件</Filter>
     </ClCompile>
     <ClCompile Include="ScaleDialog.cpp">
+      <Filter>源文件</Filter>
+    </ClCompile>
+    <ClCompile Include="mirrorDialog.cpp">
       <Filter>源文件</Filter>
     </ClCompile>
   </ItemGroup>

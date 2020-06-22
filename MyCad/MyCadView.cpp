@@ -26,6 +26,7 @@
 #include "CreateGLDialog.h"
 #include "RotateDialog.h"
 #include "ScaleDialog.h"
+#include "mirrorDialog.h"
 #ifdef _DEBUG
 #define new DEBUG_NEW
 #endif
@@ -63,21 +64,21 @@ END_MESSAGE_MAP()
 CMyCadView::CMyCadView() noexcept
 {
 	// TODO: 在此处添加构造代码
-	AllocConsole();//打开控制台
+	//AllocConsole();//打开控制台
 	
 }
 
 CMyCadView::~CMyCadView()
 {
 	
-	FreeConsole();//释放控制台资源
+	//FreeConsole();//释放控制台资源
 }
 
 BOOL CMyCadView::PreCreateWindow(CREATESTRUCT& cs)
 {
 	// TODO: 在此处通过修改
 	//  CREATESTRUCT cs 来修改窗口类或样式
-
+	
 	return CView::PreCreateWindow(cs);
 }
 
@@ -1637,8 +1638,8 @@ void CMyCadView::ScaleObject()
 		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
 		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
 
-		p1 = MyTransform::myglScalef(3, 3, pc, &p1);
-		p2 = MyTransform::myglScalef(3, 3, pc, &p2);
+		p1 = MyTransform::myglScalef(x, y, pc, &p1);
+		p2 = MyTransform::myglScalef(x, y, pc, &p2);
 
 		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
 	}
@@ -1735,6 +1736,134 @@ void CMyCadView::ScaleObject()
 		p3 = MyTransform::myglScalef(x,y,pc, &p3);//位移关键点
 		p4 = MyTransform::myglScalef(x,y,pc, &p4);//位移关键点
 		
+		this->SetRoundCircle(p1, p2, p3, p4, color, currentEditStep);	//重新绘制
+	}
+	Invalidate();
+}
+
+//镜像
+void CMyCadView::MirrorObject()
+{
+	int dir;
+	mirrorDialog dlg = new mirrorDialog;
+	dlg.DoModal();
+	if (!dlg.isMirror)
+		return;
+	dir = dlg.direction;
+	CMainFrame* pMainFrame = (CMainFrame*)(AfxGetApp()->m_pMainWnd);//获取框架类指针
+//当前只修改这一步骤下的图形
+	currentEditStep = pMainFrame->m_treeBoxView.m_treeDialog.tree_currentStep;	//获取选中的图形
+	if (currentEditStep < 0)	//没有选中图形，直接退出
+		return;
+	
+	if (editSteps[currentEditStep].type == LINE)	//移动的对象是线条
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglMirrorf( pc,&p1,dir);
+		p2 = MyTransform::myglMirrorf(pc, &p2,dir);
+
+		this->SetLine(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	
+	else if (editSteps[currentEditStep].type == RECT)	//移动的对象是填充矩形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+		CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
+
+		p1 = MyTransform::myglMirrorf(pc,&p1,dir);//缩放关键点
+		p2 = MyTransform::myglMirrorf(pc,&p2,dir);
+		p3 = MyTransform::myglMirrorf(pc,&p3,dir);
+		p4 = MyTransform::myglMirrorf(pc,&p4,dir);
+
+		this->SetRect(p1, p2, p3, p4, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == FILLRECT)	//移动的对象是矩形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglMirrorf(pc, &p1, dir);//缩放关键点
+		p2 = MyTransform::myglMirrorf(pc, &p2, dir);
+
+		this->SetFillRect(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == CIRCLE)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglMirrorf(pc, &p1, dir);//缩放关键点
+		p2 = MyTransform::myglMirrorf(pc, &p2, dir);
+
+		this->SetCircle(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == BEZIER)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglMirrorf(pc, &p1, dir);//缩放关键点
+		p2 = MyTransform::myglMirrorf(pc, &p2, dir);
+
+		this->SetBezier(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == FILLCIRCLE)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+
+		p1 = MyTransform::myglMirrorf(pc, &p1, dir);//缩放关键点
+		p2 = MyTransform::myglMirrorf(pc, &p2, dir);
+
+		this->SetFillCircle(p1, p2, color, currentEditStep);	//重新绘制
+	}
+	else if (editSteps[currentEditStep].type == ROUNDCIRCLE)	//移动的对象是圆形
+	{
+		COLORREF color = editSteps[currentEditStep].point.color;	//获取颜色
+
+		CPoint pc = editSteps[currentEditStep].centerPoint;
+
+
+		CPoint p1 = CPoint(editSteps[currentEditStep].point.x, editSteps[currentEditStep].point.y);	//获取关键点
+		CPoint p2 = CPoint(editSteps[currentEditStep].point.next->x, editSteps[currentEditStep].point.next->y);
+		CPoint p3 = CPoint(editSteps[currentEditStep].point.next->next->x, editSteps[currentEditStep].point.next->next->y);
+		CPoint p4 = CPoint(editSteps[currentEditStep].point.next->next->next->x, editSteps[currentEditStep].point.next->next->next->y);
+
+
+
+		p1 = MyTransform::myglMirrorf(pc, &p1, dir);//缩放关键点
+		p2 = MyTransform::myglMirrorf(pc, &p2, dir);
+		p3 = MyTransform::myglMirrorf(pc, &p3, dir);
+		p4 = MyTransform::myglMirrorf(pc, &p4, dir);
+
+
 		this->SetRoundCircle(p1, p2, p3, p4, color, currentEditStep);	//重新绘制
 	}
 	Invalidate();

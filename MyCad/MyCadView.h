@@ -117,7 +117,7 @@ public:
 
 	void RotateObject();//旋转
 	void ScaleObject();//缩放
-	
+	void MirrorObject(); //镜像
 
 
 	afx_msg void OnLButtonDown(UINT nFlags, CPoint point);

@@ -51,8 +51,10 @@ int CMainFrame::OnCreate(LPCREATESTRUCT lpCreateStruct)
 
 	if (CFrameWndEx::OnCreate(lpCreateStruct) == -1)
 		return -1;
-
+	
 	BOOL bNameValid;
+
+	
 
 	if (!m_wndMenuBar.Create(this))
 	{
@@ -171,6 +173,7 @@ BOOL CMainFrame::PreCreateWindow(CREATESTRUCT& cs)
 		return FALSE;
 	// TODO: 在此处通过修改
 	//  CREATESTRUCT cs 来修改窗口类或样式
+	
 
 	return TRUE;
 }

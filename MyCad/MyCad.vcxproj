@@ -210,6 +210,7 @@
     <ClInclude Include="json\value.h" />
     <ClInclude Include="json\writer.h" />
     <ClInclude Include="MainFrm.h" />
+    <ClInclude Include="mirrorDialog.h" />
     <ClInclude Include="MyCad.h" />
     <ClInclude Include="MyCadDoc.h" />
     <ClInclude Include="MyCadView.h" />
@@ -236,6 +237,7 @@
     <ClCompile Include="DrawRect.cpp" />
     <ClCompile Include="JsonClass.cpp" />
     <ClCompile Include="MainFrm.cpp" />
+    <ClCompile Include="mirrorDialog.cpp" />
     <ClCompile Include="MyCad.cpp" />
     <ClCompile Include="MyCadDoc.cpp" />
     <ClCompile Include="MyCadView.cpp" />

@@ -43,6 +43,7 @@ BEGIN_MESSAGE_MAP(ToolDialog, CDialogEx)
 	ON_BN_CLICKED(IDC_BUTTON9, &ToolDialog::OnDrawBezier)
 	ON_BN_CLICKED(IDC_BUTTON11, &ToolDialog::OnDrawYuanHu)
 	ON_BN_CLICKED(IDC_BUTTON13, &ToolDialog::OnScale)
+	ON_BN_CLICKED(IDC_BUTTON12, &ToolDialog::OnMirrorObject)
 END_MESSAGE_MAP()
 
 
@@ -188,4 +189,15 @@ void ToolDialog::OnScale()
 	CMyCadView* pv = (CMyCadView*)p->GetActiveView();	//获取view指针
 
 	pv->ScaleObject();
+}
+
+
+void ToolDialog::OnMirrorObject()
+{
+	// TODO: 在此添加控件通知处理程序代码
+	currentModel = MIRROROBJECT;
+	CMainFrame* p = (CMainFrame*)AfxGetApp()->m_pMainWnd;	//获取框架指针
+	CMyCadView* pv = (CMyCadView*)p->GetActiveView();	//获取view指针
+
+	pv->MirrorObject();
 }

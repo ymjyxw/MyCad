@@ -25,6 +25,8 @@ public:
 	static void InitRotateMatrix(float angle, float x,float y, MATRIX* matrix);
 	static void InitScaleMatrix(float x, float y, MATRIX* matrix);//初始化缩放矩阵
 
+	static void InitMirrorMatrix(MATRIX* matrix, int direction);//初始化镜像矩阵
+
 	static void MatrixMultipy(PointMatrix* point, MATRIX* matrix);	//矩阵乘变换矩阵
 
 
@@ -32,7 +34,7 @@ public:
 	static CPoint myglRotatef(float angle, float x, float y, CPoint* point);//旋转函数,传入旋转中心点，位移值与位移点，返回位移点
 	static CPoint myglScalef(float x, float y, CPoint cc, CPoint* point); //缩放函数,传入缩放x、y，返回位移点
 
-	
+	static CPoint myglMirrorf(CPoint cc,CPoint* point,int direction); //镜像函数,传入缩放x、y，返回位移点
 
 
 
